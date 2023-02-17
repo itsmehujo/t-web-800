@@ -12,7 +12,7 @@ You must have **Docker** installed.
 
 Make sure you have a database dump (ask a collegue !) in the `backend/db` folder, and rename it dump.sql
 
-You can then download, build and prepare Docker by running the following command: `./run build`  
+You can then download, build and prepare Docker by running the following command: `./run build-back`  
 Make sure to close the terminal after running this command because it will be polluted with logs.
 
 Finally, install Python required dependencies and load the DB dumb with : `./run prepare`

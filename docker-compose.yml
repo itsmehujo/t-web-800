@@ -1,9 +1,8 @@
 version: "3"
+name: "t-web-800"
 services: 
   postgres:
-    build:
-      context: ./.
-      dockerfile: ./db/Dockerfile
+    build: ./backend/db
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=djangoweb800
@@ -17,23 +16,35 @@ services:
       - default
 
   django:
-    build: ./
+    build: ./backend
     tty: true
     ports:
-      - "${PORT}:${PORT}" #django
+      - "${BACKEND_PORT}:${BACKEND_PORT}" #django
       - "5678:5678" #remote debugger
     links: 
       - postgres
     volumes:
-      - ./:/code
+      - ./backend:/code
     working_dir: /code/django
     environment:
       - DJANGO_SETTINGS_MODULE=app.settings
     networks:
       - default
+    
+  # react:
+  #   context: frontend
+  #   target: development
+  # networks:
+  #   - client-side 
+  # ports:
+  #   3000:3000
+  # volumes:
+  #   - ./frontend/src:/code/src
+
 
 networks:
-  default:
+  default: {}
+  client-side: {}
 volumes:
   postgres:
     driver: local

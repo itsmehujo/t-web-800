@@ -35,7 +35,7 @@ wipe() {
 }
 
 # builds containers
-build() {
+build-back() {
 	docker-compose up --force-recreate --build --no-deps django postgres
 }
 
@@ -137,7 +137,7 @@ pytest() {
 ### SERVERS
 # main webserver
 webserver() {
-	port=${2:-"$PORT"}
+	port=${2:-"$BACKEND_PORT"}
 	manage "$1" \
 		"runserver 0.0.0.0:$port"
 }
