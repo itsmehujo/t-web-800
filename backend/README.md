@@ -52,12 +52,11 @@ The credentials and connection infos are:
 - `./run shell`: shortcut for ./manage.py shell_plus.
 - `./run pip`: installs requirements with pip
 - `./run makemigrations`: shortcut for ./manage.py makemigrations
+- `./run createsuperuser`: shortcut for ./manage.py createsuperuser
 - `./run migrate`: shortcut for ./manage.py migrate
-- `./run test`: shortcut for pytest
 - `./run loaddb`: loads database from the db/dump.sql file
 - `./run resetdb`: clears the database
 - `./run anonymize`: produces an anonymized dump from db/dump.sql at db/anonymized_dump.sql
-- `./run deploy`: shortcut for devops/deploy.sh.
 - `./run servers`: runs webserver
 - `./run prepare`: runs pip and loaddb
 - `./run format`: formats the code with black.
