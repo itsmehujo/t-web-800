@@ -10,7 +10,7 @@ You must have **Docker** installed.
 > Install pyenv with `brew install pyenv`  
 > Install an older version of python with `pyenv install 2.7.18`
 
-Make sure you have a database dump (ask a collegue !) in the root/db folder, and rename it dump.sql
+Make sure you have a database dump (ask a collegue !) in the `backend/db` folder, and rename it dump.sql
 
 You can then download, build and prepare Docker by running the following command: `./run build`  
 Make sure to close the terminal after running this command because it will be polluted with logs.
