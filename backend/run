@@ -14,8 +14,6 @@ fi
 prjName=${COMPOSE_PROJECT_NAME:-$curDir}
 containerNameSeparator=${COMPOSE_CONTAINER_SEPARATOR:-"-"}
 postgresName="${prjName}${containerNameSeparator}postgres${containerNameSeparator}1"
-appName="${prjName}${containerNameSeparator}django${containerNameSeparator}1"
-scriptDir="$(cd "$(dirname "${BASH_SOURCE[0]}")" >/dev/null 2>&1 && pwd)"
 
 ###################################################
 ## DOCKER
@@ -41,10 +39,6 @@ build() {
 	docker-compose up --force-recreate --build --no-deps django postgres
 }
 
-# prints docker-compose configuration
-config() {
-	docker compose config
-}
 
 #################################################
 ## COMMAND INTERPOLATION HELPERS
@@ -212,9 +206,6 @@ anonymize() {
 		'pynonymizer -t postgres -i /data/dump.sql -o /data/anonymized_dump.sql -u ${POSTGRES_USER} -p ${POSTGRESQL_PASSWORD} -s /data/anonymization_strategy.yml -n anonymized_${POSTGRES_DB}'
 }
 
-deploy() {
-	/usr/bin/env bash $scriptDir/devops/deploy.sh $@
-}
 
 format() {
 	$(execApp 0) \
