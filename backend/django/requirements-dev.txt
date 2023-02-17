@@ -1,0 +1,8 @@
+django
+djangorestframework
+pytest
+black
+pynonymizer
+ipdb
+django-extensions
+ipython

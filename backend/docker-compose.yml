@@ -1,0 +1,41 @@
+version: "3"
+services: 
+  postgres:
+    build:
+      context: ./.
+      dockerfile: ./db/Dockerfile
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=djangoweb800
+      - POSTGRES_PASSWORD=postgresql__password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./db:/data
+    networks:
+      - default
+
+  django:
+    build: ./
+    tty: true
+    ports:
+      - "${PORT}:${PORT}" #django
+      - "5678:5678" #remote debugger
+    links: 
+      - postgres
+    volumes:
+      - ./:/code
+    working_dir: /code/django
+    environment:
+      - DJANGO_SETTINGS_MODULE=app.settings
+    networks:
+      - default
+
+networks:
+  default:
+volumes:
+  postgres:
+    driver: local
+  storage:
+    driver: local
