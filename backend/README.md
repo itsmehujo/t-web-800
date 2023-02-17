@@ -22,9 +22,7 @@ Finally, install Python required dependencies and load the DB dumb with : `./run
 To get things running, you can use `./run run` and `./run stop` to stop it.  
 This _run_ task will start the containers with _docker-compose_ :
 
-- The Django Webservers
-- One Celery Worker
-- One Celery Heartbeat
+- The Django Webserver
 
 If you're having a major issue, you can start the whole process over with `./run wipe`
 
