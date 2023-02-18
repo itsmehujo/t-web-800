@@ -40,5 +40,4 @@ jobs:
         env:
           DJANGO_SETTINGS_MODULE: 'app.settings'
         run: |
-          cd ./backend
-          pylint ./django
+          pylint .
