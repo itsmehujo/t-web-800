@@ -1,9 +1,8 @@
-django
-djangorestframework
+-r requirements.txt
 pytest
 pytest-django
 black
 pynonymizer
-ipdb
 django-extensions
 ipython
+model-bakery
