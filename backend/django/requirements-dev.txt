@@ -6,4 +6,3 @@ pynonymizer
 ipdb
 django-extensions
 ipython
-pylint
