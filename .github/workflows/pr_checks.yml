@@ -21,11 +21,11 @@ jobs:
   #     run: |
   #       python -m black --check ./backend/django
 
-  lint:
+  test:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ['3.11.2']
+        python-version: ["3.11.2"]
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python ${{ matrix.python-version }}
@@ -35,10 +35,23 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install -r ./backend/django/requirements-dev.txt -q
-      - name: Lint
-        env:
-          DJANGO_SETTINGS_MODULE: 'app.settings.base'
+          pip install -r backend/django/requirements-dev.txt
+      - name: Check makemigrations
         run: |
-          cd ./backend
-          pylint ./django
+          cd ./backend/django
+          python ./manage.py makemigrations --check --dry-run
+      - name: Run pytest
+        run: |
+          cd ./backend/django
+          DJANGO_SETTINGS_MODULE=app.settings.base pytest --nomigrations -n auto
+    services:
+      postgres:
+        image: postgres
+        env:
+          POSTGRES_DB: djangoweb800
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgresql__password
+        ports:
+          - 5432:5432
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
+      
