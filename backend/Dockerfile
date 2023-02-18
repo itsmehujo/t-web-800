@@ -1,4 +1,4 @@
-FROM python:3.12-rc-slim
+FROM python:3.12-rc-slim as development
 
 RUN apt-get update && apt-get install -y \
   apt-transport-https \

@@ -1,8 +1,10 @@
 version: "3"
-name: "t-web-800"
+name: "tweb800"
 services: 
   postgres:
-    build: ./backend/db
+    build: 
+      context: ./backend/db
+      target: development
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=djangoweb800
@@ -16,7 +18,9 @@ services:
       - default
 
   django:
-    build: ./backend
+    build: 
+      context: ./backend
+      target: development
     tty: true
     ports:
       - "${BACKEND_PORT}:${BACKEND_PORT}" #django
@@ -31,15 +35,17 @@ services:
     networks:
       - default
     
-  # react:
-  #   context: frontend
-  #   target: development
-  # networks:
-  #   - client-side 
-  # ports:
-  #   3000:3000
-  # volumes:
-  #   - ./frontend/src:/code/src
+  react:
+    build: 
+      context: ./frontend
+      target: development
+    working_dir: /code/react
+    networks:
+      - client-side 
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    volumes:
+      - ./frontend/src:/code/src
 
 
 networks:

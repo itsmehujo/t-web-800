@@ -22,6 +22,14 @@ start() {
 	docker compose up -d
 }
 
+start-back() {
+	docker-compose up django postgres
+}
+
+start-front() {
+	docker-compose up react
+}
+
 # stops the containers
 stop() {
 	docker compose stop
@@ -39,6 +47,14 @@ build-back() {
 	docker-compose up --force-recreate --build --no-deps django postgres
 }
 
+build-front() {
+	docker-compose up --force-recreate --build --no-deps react
+}
+
+build-all() {
+	docker-compose up --force-recreate --build --no-deps django postgres react
+}
+
 
 #################################################
 ## COMMAND INTERPOLATION HELPERS
@@ -47,7 +63,7 @@ build-back() {
 # @param {Boolean} interactive?
 # @param to be appended after the bash command
 runBash() {
-	$(execApp $1) bash $2
+	$(execBackApp $1) bash $2
 }
 # runs psql on the postgres container
 # @param {Boolean} interactive?
@@ -55,9 +71,13 @@ runPsql() {
 	$(execPostgres $1) \
 		bash -c 'psql -U ${POSTGRES_USER} ${POSTGRES_DB}'
 }
-execApp() {
+execBackApp() {
 	if [[ $1 ]]; then tty="-it"; else tty=""; fi
 	echo "docker exec ${tty} ${prjName}${containerNameSeparator}django${containerNameSeparator}1"
+}
+execFrontApp() {
+	if [[ $1 ]]; then tty="-it"; else tty=""; fi
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}react${containerNameSeparator}1"
 }
 # echoes a docker exec running on the postgres container
 # @param {Boolean} interactive or not
@@ -83,8 +103,13 @@ psql() {
 # @param {Boolean} interactive?
 # @param the command
 manage() {
-	$(execApp $1) \
+	$(execBackApp $1) \
 		python3 manage.py ${@:2}
+}
+
+startReact() {
+	$(execFrontApp $1) \
+		npm start
 }
 # shell_plus
 shell() {
@@ -110,7 +135,7 @@ migrate() {
 
 # installs project dependencies via pip
 pip() {
-	$(execApp 0) \
+	$(execBackApp 0) \
 		bash -c \
 		"pip install -r requirements-dev.txt"
 }
@@ -129,7 +154,7 @@ pytest() {
 	else
 		args="$1 -s -k ${*:2}"
 	fi
-	$(execApp 1) \
+	$(execBackApp 1) \
 		bash -c \
 		"unset DJANGO_SETTINGS_MODULE && pytest $args"
 }
@@ -142,15 +167,25 @@ webserver() {
 		"runserver 0.0.0.0:$port"
 }
 
+reactserver() {
+	startReact 
+}
+
 ### SHORTCUTS
 # runs all servers
-servers() {
+back-servers() {
 	webserver $1
 }
 # runs docker and the servers
-run() {
-	start && servers
+back() {
+	start-back && back-servers
 }
+
+front() {
+	start-front
+}
+
+
 refresh() {
 	pip
 }
@@ -208,12 +243,12 @@ anonymize() {
 
 
 format() {
-	$(execApp 0) \
+	$(execBackApp 0) \
 		python3 -m black .
 }
 
 format-check() {
-	$(execApp 0) \
+	$(execBackApp 0) \
 		python3 -m black --check .
 }
 

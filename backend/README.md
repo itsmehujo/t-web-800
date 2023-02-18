@@ -19,7 +19,7 @@ Finally, install Python required dependencies and load the DB dumb with : `./run
 
 ## Run
 
-To get things running, you can use `./run run` and `./run stop` to stop it.  
+To get things running, you can use `./run run-back` and `./run stop-back` to stop it.  
 This _run_ task will start the containers with _docker-compose_ :
 
 - The Django Webserver
