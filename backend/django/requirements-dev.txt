@@ -1,10 +1,9 @@
 django
 djangorestframework
 pytest
+pytest-django
 black
 pynonymizer
 ipdb
 django-extensions
 ipython
-pylint
-pylint_django
