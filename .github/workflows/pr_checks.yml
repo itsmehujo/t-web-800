@@ -43,7 +43,7 @@ jobs:
       - name: Run pytest
         run: |
           cd ./backend/django
-          DJANGO_SETTINGS_MODULE=app.settings.base pytest --nomigrations -n auto
+          DJANGO_SETTINGS_MODULE=app.settings.base pytest --nomigrations
     services:
       postgres:
         image: postgres
