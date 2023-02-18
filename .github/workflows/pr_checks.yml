@@ -38,6 +38,7 @@ jobs:
           pip install -r ./backend/django/requirements-dev.txt -q
       - name: Lint
         env:
-          DJANGO_SETTINGS_MODULE: 'app.settings'
+          DJANGO_SETTINGS_MODULE: 'app.settings.base'
         run: |
+          cd ./backend
           pylint ./django
