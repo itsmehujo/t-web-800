@@ -37,5 +37,7 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r ./backend/django/requirements-dev.txt -q
       - name: Lint
+        env:
+          DJANGO_SETTINGS_MODULE: 'app.settings'
         run: |
           pylint --disable=W,C,R django/
