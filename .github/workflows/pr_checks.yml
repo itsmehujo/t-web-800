@@ -25,7 +25,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        python-version: ["3.11.2"]
+        python-version: ['3.11.2']
     steps:
       - uses: actions/checkout@v3
       - name: Setup Python ${{ matrix.python-version }}
@@ -41,9 +41,11 @@ jobs:
           cd ./backend/django
           python ./manage.py makemigrations --check --dry-run
       - name: Run pytest
+        env:
+          DJANGO_SETTINGS_MODULE: app.settings.test
         run: |
           cd ./backend/django
-          DJANGO_SETTINGS_MODULE=app.settings.base pytest
+          pytest
     services:
       postgres:
         image: postgres
@@ -54,4 +56,3 @@ jobs:
         ports:
           - 5432:5432
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
-      
