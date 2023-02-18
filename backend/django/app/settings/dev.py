@@ -25,7 +25,7 @@ SECRET_KEY = "django-insecure-@(_j9s6#6m+uh74f57&3+i9=df7%r87^k^ir_c#yit1tm6&6g*
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = ["localhost", "host.docker.internal", "127.0.0.1"]
+ALLOWED_HOSTS = ["testserver", "localhost", "host.docker.internal"]
 
 
 # Application definition
@@ -42,16 +42,16 @@ INSTALLED_APPS = [
     "corsheaders",
 ]
 
-# DATABASES = {
-#     "default": {
-#         "ENGINE": "django.db.backends.postgresql_psycopg2",
-#         "NAME": "djangoweb800",
-#         "USER": "postgres",
-#         "PASSWORD": "postgresql__password",
-#         "HOST": "postgres",
-#         "PORT": "5432",
-#     }
-# }
+DATABASES = {
+    "default": {
+        "ENGINE": "django.db.backends.postgresql_psycopg2",
+        "NAME": "djangoweb800",
+        "USER": "postgres",
+        "PASSWORD": "postgresql__password",
+        "HOST": "postgres",
+        "PORT": "5432",
+    }
+}
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -85,9 +85,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = "app.wsgi.application"
 
-
-# Database
-# https://docs.djangoproject.com/en/4.0/ref/settings/#databases
 
 
 
@@ -133,5 +130,5 @@ STATIC_URL = "static/"
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 CORS_ORIGIN_WHITELIST = [
-    "http://localhost:3000",
+    "http://localhost:3000"
 ]

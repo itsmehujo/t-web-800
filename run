@@ -22,12 +22,12 @@ start() {
 	docker compose up -d
 }
 
-start-back() {
-	docker-compose up django postgres
+startBack() {
+	docker-compose up django postgres -d
 }
 
-start-front() {
-	docker-compose up react
+startFront() {
+	docker-compose up react -d
 }
 
 # stops the containers
@@ -173,16 +173,16 @@ reactserver() {
 
 ### SHORTCUTS
 # runs all servers
-back-servers() {
+backServers() {
 	webserver $1
 }
 # runs docker and the servers
 back() {
-	start-back && back-servers
+	startBack && backServers
 }
 
 front() {
-	start-front
+	startFront && reactserver
 }
 
 

@@ -6,3 +6,4 @@ pynonymizer
 django-extensions
 ipython
 model-bakery
+django-cors-headers
