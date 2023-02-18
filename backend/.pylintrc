@@ -1,0 +1,6 @@
+[MASTER]
+load-plugins=pylint_django, pylint_django.checkers.migrations
+init-hook="from pylint.config import find_pylintrc; import os, sys; sys.path.append( os.path.dirname(find_pylintrc())+'/django' )"
+
+[MESSAGES CONTROL]
+disable=C0301, missing-docstring, too-few-public-methods, no-member, unsupported-binary-operation, fixme
