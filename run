@@ -252,6 +252,10 @@ format-check() {
 		python3 -m black --check .
 }
 
+error_check() {
+	pylint --disable=W,C,R django/
+}
+
 
 # runs the command passed as first argument, passing to it all other arguments
 cmd=$1
