@@ -3,6 +3,8 @@ on:
   pull_request:
     branches:
       - 'back/**'
+      - 'backend/**'
+      - 'server/**'
 
 jobs:
   format-check:
