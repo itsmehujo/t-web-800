@@ -1,9 +1,5 @@
-name: Performs checks
-on: 
-  push:
-    branches:
-      - main
-      - 'backend/**'
+name: 'BACKEND: Performs checks'
+on: pull_request
 
 jobs:
   format-check:
