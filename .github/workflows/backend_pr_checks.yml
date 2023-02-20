@@ -50,7 +50,7 @@ jobs:
       postgres:
         image: postgres
         env:
-          POSTGRES_DB: djangoweb800
+          POSTGRES_DB: symfonyweb800
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgresql__password
         ports:

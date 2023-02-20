@@ -7,7 +7,7 @@ services:
       target: development
     environment:
       - POSTGRES_USER=postgres
-      - POSTGRES_DB=djangoweb800
+      - POSTGRES_DB=symfonyweb800
       - POSTGRES_PASSWORD=postgresql__password
     ports:
       - "5432:5432"

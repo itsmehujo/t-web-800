@@ -33,7 +33,7 @@ The credentials and connection infos are:
 - **Password**: `postgresql__password`
 - **Host**: `localhost`
 - **Port**: `5436`
-- **Database**: `djangoweb800`
+- **Database**: `symfonyweb800`
 
 ## The runner script - ./run
 
@@ -50,7 +50,6 @@ The credentials and connection infos are:
 - `./run resetdb`: clears the database
 - `./run servers`: runs webserver
 - `./run prepare`: runs loaddb
-
 
 ## VSCode setup [to be done]
 
