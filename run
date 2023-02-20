@@ -23,7 +23,7 @@ start() {
 }
 
 startBack() {
-	docker-compose up django postgres -d
+	docker-compose up symfony postgres -d
 }
 
 startFront() {
@@ -44,7 +44,7 @@ wipe() {
 
 # builds containers
 build-back() {
-	docker-compose up --force-recreate --build --no-deps django postgres
+	docker-compose up --force-recreate --build --no-deps symfony postgres
 }
 
 build-front() {
@@ -52,14 +52,14 @@ build-front() {
 }
 
 build-all() {
-	docker-compose up --force-recreate --build --no-deps django postgres react
+	docker-compose up --force-recreate --build --no-deps symfony postgres react
 }
 
 
 #################################################
 ## COMMAND INTERPOLATION HELPERS
 
-# runs bash on the django container
+# runs bash on the symfony container
 # @param {Boolean} interactive?
 # @param to be appended after the bash command
 runBash() {
@@ -73,7 +73,7 @@ runPsql() {
 }
 execBackApp() {
 	if [[ $1 ]]; then tty="-it"; else tty=""; fi
-	echo "docker exec ${tty} ${prjName}${containerNameSeparator}django${containerNameSeparator}1"
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}symfony${containerNameSeparator}1"
 }
 execFrontApp() {
 	if [[ $1 ]]; then tty="-it"; else tty=""; fi
@@ -98,46 +98,24 @@ psql() {
 	runPsql 1
 }
 
-### DJANGO
+### symfony
 # runs arbitrary manage commands
 # @param {Boolean} interactive?
 # @param the command
-manage() {
+startBack() {
 	$(execBackApp $1) \
-		python3 manage.py ${@:2}
+		symfony server:start
 }
 
 startReact() {
 	$(execFrontApp $1) \
 		npm start
 }
-# shell_plus
-shell() {
-	manage 1 \
-		shell_plus
-}
-# createsuperuser
-createsuperuser() {
-	manage 1 \
-		createsuperuser
-}
-# makemigrations
-makemigrations() {
-	manage 0 \
-		makemigrations $@
-}
 
-# migrate
-migrate() {
-	manage 0 \
-		migrate $@ --no-input
-}
-
-# installs project dependencies via pip
-pip() {
+dependencies() {
 	$(execBackApp 0) \
 		bash -c \
-		"pip install -r requirements-dev.txt"
+		"composer install"
 }
 
 ### TESTS && DOCS
@@ -146,18 +124,7 @@ pip() {
 # - if one param, pytest is run on the given app w/ debugger support
 # - if two params, pytest is run in the given app,
 #   selecting the tests matching the given string, w/ debugger support
-pytest() {
-	if [ "$#" == "0" ]; then
-		args=" --capture=sys"
-	elif [ "$#" == "1" ]; then
-		args="$1 -s"
-	else
-		args="$1 -s -k ${*:2}"
-	fi
-	$(execBackApp 1) \
-		bash -c \
-		"unset DJANGO_SETTINGS_MODULE && pytest $args"
-}
+
 
 ### SERVERS
 # main webserver
@@ -187,7 +154,7 @@ front() {
 
 
 refresh() {
-	pip
+	dependencies
 }
 
 prepare() {

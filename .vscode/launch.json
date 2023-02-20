@@ -5,20 +5,14 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "name": "[BACKEND] Debug Django",
-      "type": "python",
-      "request": "attach",
-      "connect": {
-        "host": "localhost",
-        "port": 5678
-      },
-      "pathMappings": [
-        {
-          "localRoot": "${workspaceFolder}/django",
+      "name": "[BACKEND] Debug Symfony",
+      "type": "php",
+      "request": "launch",
+      "port": 9003,
+      "pathMappings": {
+          "localRoot": "${workspaceFolder}/symfony",
           "remoteRoot": "."
         }
-      ],
-      "justMyCode": true
     }
   ]
 }

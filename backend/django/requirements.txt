@@ -1,5 +1,0 @@
-django
-djangorestframework
-ipdb
-psycopg2-binary
-django-cors-headers

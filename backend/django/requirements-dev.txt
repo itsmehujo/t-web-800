@@ -1,9 +1,0 @@
--r requirements.txt
-pytest
-pytest-django
-black
-pynonymizer
-django-extensions
-ipython
-model-bakery
-django-cors-headers

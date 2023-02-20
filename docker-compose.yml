@@ -17,21 +17,19 @@ services:
     networks:
       - default
 
-  django:
+  symfony:
     build: 
       context: ./backend
       target: development
     tty: true
     ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}" #django
+      - "${BACKEND_PORT}:${BACKEND_PORT}" #symfony
       - "5678:5678" #remote debugger
-    links: 
+    links : 
       - postgres
     volumes:
       - ./backend:/code
-    working_dir: /code/django
-    environment:
-      - DJANGO_SETTINGS_MODULE=app.settings.base
+    working_dir: /code/symfony
     networks:
       - default
     
