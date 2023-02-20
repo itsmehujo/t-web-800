@@ -1,0 +1,227 @@
+#!/usr/bin/env bash
+
+curDir=$(basename ${PWD})
+
+# sources DOTENV
+source ./.env
+if [[ -f ./.env.local ]]; then
+  set -o allexport
+  source ./.env.local
+  set +o allexport
+fi
+
+# docker project name is current dir, if not set
+prjName=${COMPOSE_PROJECT_NAME:-$curDir}
+containerNameSeparator=${COMPOSE_CONTAINER_SEPARATOR:-"-"}
+postgresName="${prjName}${containerNameSeparator}postgres${containerNameSeparator}1"
+
+###################################################
+## DOCKER
+# starts the containers
+start() {
+	docker compose up -d
+}
+
+startBack() {
+	docker-compose up symfony postgres -d
+}
+
+startFront() {
+	docker-compose up react -d
+}
+
+# stops the containers
+stop() {
+	docker compose stop
+}
+
+# destroys all containers
+wipe() {
+	docker compose down --remove-orphans
+	docker compose rm -v
+	docker volume rm ${prjName}_postgres
+}
+
+# builds containers
+build-back() {
+	docker-compose up --force-recreate --build --no-deps symfony postgres
+}
+
+build-front() {
+	docker-compose up --force-recreate --build --no-deps react
+}
+
+build-all() {
+	docker-compose up --force-recreate --build --no-deps symfony postgres react
+}
+
+
+#################################################
+## COMMAND INTERPOLATION HELPERS
+
+# runs bash on the symfony container
+# @param {Boolean} interactive?
+# @param to be appended after the bash command
+runBash() {
+	$(execBackApp $1) bash $2
+}
+# runs psql on the postgres container
+# @param {Boolean} interactive?
+runPsql() {
+	$(execPostgres $1) \
+		bash -c 'psql -U ${POSTGRES_USER} ${POSTGRES_DB}'
+}
+execBackApp() {
+	if [[ $1 ]]; then tty="-it"; else tty=""; fi
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}symfony${containerNameSeparator}1"
+}
+execFrontApp() {
+	if [[ $1 ]]; then tty="-it"; else tty=""; fi
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}react${containerNameSeparator}1"
+}
+# echoes a docker exec running on the postgres container
+# @param {Boolean} interactive or not
+execPostgres() {
+	if [[ $1 ]]; then tty="-it"; else tty=""; fi
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}postgres${containerNameSeparator}1"
+}
+
+
+###################################################
+## COMMANDS
+# bash
+bash() {
+	runBash 1
+}
+# psql
+psql() {
+	runPsql 1
+}
+
+### symfony
+# runs arbitrary manage commands
+# @param {Boolean} interactive?
+# @param the command
+startSymfony() {
+	$(execBackApp $1) \
+		symfony server:start
+}
+
+startReact() {
+	$(execFrontApp $1) \
+		npm start
+}
+
+dependencies() {
+	$(execBackApp 0) \
+		bash -c \
+		"composer install"
+}
+
+### TESTS && DOCS
+# runs pytest in debug mode, passing down any params
+# - if no params, pytest in the entire project is run
+# - if one param, pytest is run on the given app w/ debugger support
+# - if two params, pytest is run in the given app,
+#   selecting the tests matching the given string, w/ debugger support
+
+
+### SERVERS
+# main webserver
+webserver() {
+	port=${2:-"$BACKEND_PORT"}
+	manage "$1" \
+		"runserver 0.0.0.0:$port"
+}
+
+reactserver() {
+	startReact 
+}
+
+### SHORTCUTS
+# runs all servers
+backServers() {
+	webserver $1
+}
+# runs docker and the servers
+back() {
+	startBack && startSymfony
+}
+
+front() {
+	startFront && reactserver
+}
+
+
+refresh() {
+	dependencies
+}
+
+prepare() {
+	refresh
+	loaddb
+}
+
+### DATABASE
+resetdb() {
+	$(execPostgres 0) \
+		bash -c \
+		'dropdb -U ${POSTGRES_USER} ${POSTGRES_DB} &&createdb -U ${POSTGRES_USER} ${POSTGRES_DB}'
+}
+
+loaddb() {
+	docker cp db/dump.sql ${postgresName}:/
+	$(execPostgres 0) \
+		bash -c \
+		"psql -U ${POSTGRES_USER} ${POSTGRES_DB} < /dump.sql"
+	$(execPostgres 0) \
+		bash -c \
+		'rm /dump.sql'
+}
+
+loaddump() {
+	docker cp db/dump.pgdump ${postgresName}:/
+	$(execPostgres 0) \
+		bash -c \
+		"pg_restore --no-privileges --no-owner -U ${POSTGRES_USER} -d ${POSTGRES_DB} /dump.pgdump"
+	$(execPostgres 0) \
+		bash -c \
+		'rm /dump.pgdump'
+}
+
+dumpdb() {
+	$(execPostgres 0) \
+		bash -c \
+		"pg_dump -U ${POSTGRES_USER} ${POSTGRES_DB} > /dump.sql"
+	docker cp ${postgresName}:/dump.sql ./db/
+	$(execPostgres 0) \
+		bash -c \
+		'rm /dump.sql'
+}
+
+anonymize() {
+	$(execPostgres 0) \
+		bash -c \
+		'echo "CREATE DATABASE ${POSTGRES_USER};" | psql -U ${POSTGRES_USER} ${POSTGRES_DB}'
+	$(execPostgres 0) \
+		bash -c \
+		'pynonymizer -t postgres -i /data/dump.sql -o /data/anonymized_dump.sql -u ${POSTGRES_USER} -p ${POSTGRESQL_PASSWORD} -s /data/anonymization_strategy.yml -n anonymized_${POSTGRES_DB}'
+}
+
+
+format() {
+	$(execBackApp 0) \
+		python3 -m black .
+}
+
+format-check() {
+	$(execBackApp 0) \
+		python3 -m black --check .
+}
+
+
+
+# runs the command passed as first argument, passing to it all other arguments
+cmd=$1
+shift
+$cmd $@

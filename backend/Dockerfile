@@ -1,0 +1,26 @@
+FROM php:8.1.16-zts as development
+
+RUN apt-get update \
+  && apt-get install -y zlib1g-dev g++ git libicu-dev zip libzip-dev zip \
+  && docker-php-ext-install intl opcache pdo pdo_mysql \
+  && pecl install apcu \
+  && docker-php-ext-enable apcu \
+  && docker-php-ext-configure zip \
+  && docker-php-ext-install zip
+
+RUN curl -sS https://getcomposer.org/installer | php -- --install-dir=/usr/local/bin --filename=composer
+
+RUN curl -sS https://get.symfony.com/cli/installer | bash
+RUN mv /root/.symfony5/bin/symfony /usr/local/bin/symfony
+
+RUN pecl install xdebug-3.1.3 \
+  && docker-php-ext-enable xdebug \
+  && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
+  && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
+
+COPY ./symfony/composer.json /code/symfony/composer.json
+COPY ./symfony/composer.lock /code/symfony/composer.lock
+
+WORKDIR /code/symfony
+RUN composer install --prefer-dist --no-interaction --optimize-autoloader --no-scripts
+

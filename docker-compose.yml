@@ -1,0 +1,56 @@
+version: "3"
+name: "tweb800"
+services: 
+  postgres:
+    build: 
+      context: ./backend/db
+      target: development
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_DB=djangoweb800
+      - POSTGRES_PASSWORD=postgresql__password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres:/var/lib/postgresql/data
+      - ./db:/data
+    networks:
+      - default
+
+  symfony:
+    build: 
+      context: ./backend
+      target: development
+    tty: true
+    ports:
+      - "${BACKEND_PORT}:${BACKEND_PORT}" #symfony
+      - "5678:5678" #remote debugger
+    links : 
+      - postgres
+    volumes:
+      - ./backend:/code
+    working_dir: /code/symfony
+    networks:
+      - default
+    
+  react:
+    build: 
+      context: ./frontend
+      target: development
+    working_dir: /code/react
+    networks:
+      - client-side 
+    ports:
+      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
+    volumes:
+      - ./frontend/src:/code/src
+
+
+networks:
+  default: {}
+  client-side: {}
+volumes:
+  postgres:
+    driver: local
+  storage:
+    driver: local
