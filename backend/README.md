@@ -4,18 +4,12 @@
 
 You must have **Docker** installed.
 
-### Extra steps if you're on macos
-
-> Install XCode from the App Store  
-> Install pyenv with `brew install pyenv`  
-> Install an older version of python with `pyenv install 2.7.18`
-
 Make sure you have a database dump (ask a collegue !) in the `backend/db` folder, and rename it dump.sql
 
 You can then download, build and prepare Docker by running the following command: `./run build-back`  
 Make sure to close the terminal after running this command because it will be polluted with logs.
 
-Finally, install Python required dependencies and load the DB dumb with : `./run prepare`
+Finally, load the DB dumb with : `./run prepare`
 
 ## Run
 
@@ -45,34 +39,20 @@ The credentials and connection infos are:
 
 - `./run run`: starts the containers and all backend processes
 - `./run back`: starts the containers and all backend processes
-- `./run start`: starts the containers
+- `./run start`: starts all the containers
 - `./run stop`: stops the containers
-- `./run bash`: runs bash terminal on the django container
+- `./run bash`: runs bash terminal on the symfony container
 - `./run psql`: runs psql prompt on the postgres container
-- `./run webserver`: shortcut for ./manage.py runserver 0.0.0.0:8000.
+- `./run startSymfony`: shortcut for symfony server:start (runned on the docker instance)
 - `./run shell`: shortcut for ./manage.py shell_plus.
-- `./run pip`: installs requirements with pip
-- `./run makemigrations`: shortcut for ./manage.py makemigrations
-- `./run createsuperuser`: shortcut for ./manage.py createsuperuser
-- `./run migrate`: shortcut for ./manage.py migrate
+- `./run refresh`: installs dependencies
 - `./run loaddb`: loads database from the db/dump.sql file
 - `./run resetdb`: clears the database
-- `./run anonymize`: produces an anonymized dump from db/dump.sql at db/anonymized_dump.sql
 - `./run servers`: runs webserver
-- `./run prepare`: runs pip and loaddb
-- `./run format`: formats the code with black.
-- `./run format-check`: checks whether the code has been formatted with black.
+- `./run prepare`: runs loaddb
 
-## Running pytest
 
-You can run pytests in the entire project with ./run pytest. It uses the -s flag by default, so it will activate a debugger on ipdb.set_trace() calls.
-
-Aditionaly, you can run a subset of tests by passing additional parameters:
-
-- `./run pytest app_name` will only run tests within the app_name app
-- `./run pytest app_name class_or_method_name` will only run tests within the app_name app and whose class or method name contains class_or_method_name
-
-## VSCode setup
+## VSCode setup [to be done]
 
 Visual Studio Code is the recommended IDE for development.
 
