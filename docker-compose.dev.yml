@@ -2,9 +2,7 @@ version: "3"
 name: "tweb800"
 services: 
   postgres:
-    build: 
-      context: ./backend/misc/db
-      target: development
+    image: postgres:alpine3.17
     environment:
       - POSTGRES_USER=postgres
       - POSTGRES_DB=symfonyweb800
@@ -34,6 +32,40 @@ services:
     working_dir: /code/main_app
     networks:
       - main_app
+    
+  # server
+  caddy:
+    image: caddy:2.6.4-alpine
+    volumes:
+      - ./backend/misc/caddy/Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy_data:/data
+      - caddy_config:/config
+    ports:
+        # HTTP
+      - target: 80
+        published: 80
+        protocol: tcp
+      # HTTPS
+      - target: 443
+        published: 443
+        protocol: tcp
+        # HTTP/3
+      - target: 443
+        published: 443
+        protocol: udp
+    depends_on:
+      - main_app
+      - activities
+      - hotels
+      - maps
+      - restaurants
+    environment:
+      MAIN_BACKEND_PORT: ${MAIN_BACKEND_PORT}
+      ACTIVITIES_BACKEND_PORT: ${ACTIVITIES_BACKEND_PORT}
+      HOTELS_BACKEND_PORT: ${HOTELS_BACKEND_PORT}
+      MAPS_BACKEND_PORT: ${MAPS_BACKEND_PORT}
+      RESTAURANTS_BACKEND_PORT: ${RESTAURANTS_BACKEND_PORT}
+    restart: unless-stopped
 
 
   # MICROSERVICES
@@ -119,3 +151,5 @@ volumes:
     driver: local
   storage:
     driver: local
+  caddy_data:
+  caddy_config:

@@ -1,0 +1,53 @@
+{
+    debug
+}
+
+
+
+
+localhost {
+    encode zstd gzip
+    file_server browse
+    reverse_proxy main_app:${MAIN_BACKEND_PORT}
+
+}
+
+epicroadtrip.local {
+    encode zstd gzip
+    file_server browse
+}
+
+api.epicroadtrip.local {
+    encode zstd gzip
+    file_server browse
+
+    reverse_proxy main_app:8000 
+}
+
+# activities.epicroadtrip.local {
+#     encode zstd gzip
+#     file_server browse
+
+#     reverse_proxy activities:{$ACTIVITIES_BACKEND_PORT}
+# }
+
+# hotels.epicroadtrip.local {
+#     encode zstd gzip
+#     file_server browse
+
+#     reverse_proxy hotels:{$HOTELS_BACKEND_PORT}
+# }
+
+# maps.epicroadtrip.local {
+#     encode zstd gzip
+#     file_server browse
+
+#     reverse_proxy maps:{$MAPS_BACKEND_PORT}
+# }
+
+# restaurants.epicroadtrip.local {
+#     encode zstd gzip
+#     file_server browse
+
+#     reverse_proxy restaurants:{$RESTAURANTS_BACKEND_PORT}
+# }
