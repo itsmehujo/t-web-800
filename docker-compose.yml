@@ -28,6 +28,25 @@ services:
       - "${FRONTEND_PORT}:${FRONTEND_PORT}"
     volumes:
       - ./frontend/src:/code/src
+  
+  # main symfony app
+  main_app:
+    build: 
+      context: ./backend
+      target: development
+      args:
+        - APP_NAME=main_app
+    tty: true
+    ports:
+      - "${MAIN_BACKEND_PORT}:${MAIN_BACKEND_PORT}" #activities
+    links : 
+      - postgres
+    volumes:
+      - ./backend:/code
+    working_dir: /code/main_app
+    networks:
+      - main_app
+
 
   # MICROSERVICES
   activities:
@@ -66,7 +85,7 @@ services:
 
   maps:
     build: 
-      context: ./backend/maps
+      context: ./backend
       target: development
       args:
         - APP_NAME=maps
@@ -83,7 +102,7 @@ services:
 
   restaurants:
     build: 
-      context: ./backend/restaurants
+      context: ./backend
       target: development
       args:
         - APP_NAME=restaurants
@@ -106,6 +125,7 @@ networks:
   hotels: {}
   maps: {}
   restaurants: {}
+  main_app: {}
   client-side: {}
 volumes:
   postgres:

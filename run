@@ -23,7 +23,7 @@ start() {
 }
 
 startBack() {
-	docker-compose up activities hotels maps restaurants postgres -d
+	docker-compose up main_app activities hotels maps restaurants postgres -d
 }
 startPostgres() {
 	docker-compose up postgres -d
@@ -47,7 +47,7 @@ wipe() {
 
 # builds containers
 build-back() {
-	docker-compose up --force-recreate --build --no-deps activities hotels maps restaurants postgres
+	docker-compose up --force-recreate --build --no-deps main_app activities hotels maps restaurants postgres
 }
 
 build-front() {
@@ -55,7 +55,7 @@ build-front() {
 }
 
 build-all() {
-	docker-compose up --force-recreate --build --no-deps activities hotels maps restaurants postgres react
+	docker-compose up --force-recreate --build --no-deps main_app activities hotels maps restaurants postgres react
 }
 
 
@@ -66,10 +66,11 @@ build-all() {
 # @param {Boolean} interactive?
 runBash() {
 	case $1 in
-	activities) $(execActivitiesApp $1) bash $2;;
-	hotels) $(execHotelsApp $1) bash $2;;
-	maps) $(execMapsApp $1) bash $2;;
-	restaurants) $(execRestaurantsApp $1) bash $2;;
+	main_app) $(execMainApp $1) bash;;
+	activities) $(execActivitiesApp $1) bash;;
+	hotels) $(execHotelsApp $1) bash;;
+	maps) $(execMapsApp $1) bash;;
+	restaurants) $(execRestaurantsApp $1) bash;;
 	*) echo "unknown container";;
 	esac
 }
@@ -78,6 +79,10 @@ runBash() {
 runPsql() {
 	$(execPostgres $1) \
 		bash -c 'psql -U ${POSTGRES_USER} ${POSTGRES_DB}'
+}
+execMainApp() {
+	if [[ $1 ]]; then tty="-it"; else tty=""; fi
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}main_app${containerNameSeparator}1"
 }
 execActivitiesApp() {
 	if [[ $1 ]]; then tty="-it"; else tty=""; fi
@@ -111,7 +116,7 @@ execPostgres() {
 ## COMMANDS
 # bash
 bash() {
-	runBash 1
+	runBash $1
 }
 # psql
 psql() {
@@ -122,6 +127,10 @@ psql() {
 # runs arbitrary manage commands
 # @param {Boolean} interactive?
 # @param the command
+startMainApp() {
+	$(execMainApp $1) \
+		symfony server:start --port=$MAIN_BACKEND_PORT -d
+}
 startActivities() {
 	$(execActivitiesApp $1) \
 		symfony server:start --port=$ACTIVITIES_BACKEND_PORT -d
@@ -137,6 +146,11 @@ startMaps() {
 startRestaurants() {
 	$(execRestaurantsApp $1) \
 		symfony server:start --port=$RESTAURANTS_BACKEND_PORT -d
+}
+
+debugApp() {
+	$(execActivitiesApp $1) \
+		symfony server:log
 }
 
 debugActivities() {
@@ -160,12 +174,18 @@ debugRestaurants() {
 }
 
 startServices() {
-	startActivities && startHotels && startMaps && startRestaurants
+	startMainApp && startActivities && startHotels && startMaps && startRestaurants
 }
 
 startReact() {
 	$(execFrontApp $1) \
 		npm start
+}
+
+mainAppDependencies() {
+	$(execMainApp 0) \
+		bash -c \
+		"composer install"
 }
 
 activitiesDependencies() {
@@ -190,7 +210,7 @@ restaurantsDependencies() {
 }
 
 dependencies() {
-	activitiesDependencies && hotelsDependencies && mapsDependencies && restaurantsDependencies
+	mainAppDependencies && activitiesDependencies && hotelsDependencies && mapsDependencies && restaurantsDependencies
 }
 
 ### TESTS && DOCS
