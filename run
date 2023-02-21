@@ -19,14 +19,14 @@ postgresName="${prjName}${containerNameSeparator}postgres${containerNameSeparato
 ## DOCKER
 # starts the containers
 start() {
-	docker compose up -f docker-compose.dev.yml -d
+	docker compose --file docker-compose.dev.yml up -d
 }
 
 startBack() {
-	docker-compose up -f docker-compose.dev.yml main_app activities hotels maps restaurants postgres -d
+	docker compose --file docker-compose.dev.yml up caddy main_app activities hotels maps restaurants postgres -d
 }
 startPostgres() {
-	docker-compose up -f docker-compose.dev.yml postgres -d
+	docker compose--file docker-compose.dev.yml up postgres -d
 }
 
 # stops the containers
@@ -42,13 +42,10 @@ wipe() {
 }
 
 # builds containers
-build-back() {
-	docker-compose up --force-recreate --build --no-deps main_app activities hotels maps restaurants postgres
+build() {
+	docker compose --file docker-compose.dev.yml up --force-recreate --build --no-deps caddy main_app activities hotels maps restaurants postgres
 }
 
-build-all() {
-	docker-compose up --force-recreate --build --no-deps main_app activities hotels maps restaurants postgres
-}
 
 
 #################################################
@@ -212,7 +209,13 @@ back() {
 	startBack && startServices
 }
 
-
+setupLocalUrl() {
+	cat << URL >> /etc/hosts
+# EPIC ROAD TRIP URLS
+127.0.0.1 epicroadtrip.local api.epicroadtrip.local activities.epicroadtrip.local maps.epicroadtrip.local hotels.epicroadtrip.local restaurants.epicroadtrip.local
+## END 
+URL
+}
 
 refresh() {
 	dependencies
@@ -258,15 +261,6 @@ dumpdb() {
 	$(execPostgres 0) \
 		bash -c \
 		'rm /dump.sql'
-}
-
-anonymize() {
-	$(execPostgres 0) \
-		bash -c \
-		'echo "CREATE DATABASE ${POSTGRES_USER};" | psql -U ${POSTGRES_USER} ${POSTGRES_DB}'
-	$(execPostgres 0) \
-		bash -c \
-		'pynonymizer -t postgres -i /data/dump.sql -o /data/anonymized_dump.sql -u ${POSTGRES_USER} -p ${POSTGRESQL_PASSWORD} -s /data/anonymization_strategy.yml -n anonymized_${POSTGRES_DB}'
 }
 
 

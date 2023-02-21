@@ -25,4 +25,3 @@ COPY ./$APP_NAME/composer.lock /code/$APP_NAME/composer.lock
 
 WORKDIR /code/$APP_NAME
 RUN composer install --prefer-dist --no-interaction --optimize-autoloader --no-scripts
-

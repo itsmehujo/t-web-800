@@ -1,0 +1,43 @@
+{
+    debug
+}
+
+{$FRONTEND_URL} {
+    encode zstd gzip
+    file_server browse
+}
+
+{$MAIN_API_URL} {
+    encode zstd gzip
+    file_server browse
+
+    reverse_proxy main_app:{$MAIN_BACKEND_PORT} 
+}
+
+{$ACTIVITIES_API_URL} {
+    encode zstd gzip
+    file_server browse
+
+    reverse_proxy activities:{$ACTIVITIES_BACKEND_PORT}
+}
+
+{$HOTELS_API_URL}} {
+    encode zstd gzip
+    file_server browse
+
+    reverse_proxy hotels:{$HOTELS_BACKEND_PORT}
+}
+
+{$MAPS_API_URL} {
+    encode zstd gzip
+    file_server browse
+
+    reverse_proxy maps:{$MAPS_BACKEND_PORT}
+}
+
+{$RESTAURANTS_API_URL} {
+    encode zstd gzip
+    file_server browse
+
+    reverse_proxy restaurants:{$RESTAURANTS_BACKEND_PORT}
+}
