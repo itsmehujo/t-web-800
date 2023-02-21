@@ -30,8 +30,6 @@ services:
     volumes:
       - ./backend:/code
     working_dir: /code/main_app
-    networks:
-      - main_app
     
   # server
   caddy:
@@ -83,8 +81,7 @@ services:
     volumes:
       - ./backend:/code
     working_dir: /code/activities
-    networks:
-      - activities
+    
 
   hotels:
     build: 
@@ -100,8 +97,7 @@ services:
     volumes:
       - ./backend:/code
     working_dir: /code/hotels
-    networks:
-      - hotels
+    
 
   maps:
     build: 
@@ -117,8 +113,7 @@ services:
     volumes:
       - ./backend:/code
     working_dir: /code/maps
-    networks:
-      - maps
+    
 
   restaurants:
     build: 
@@ -134,18 +129,12 @@ services:
     volumes:
       - ./backend:/code
     working_dir: /code/restaurants
-    networks:
-      - restaurants
-
-
+    
 
 
 networks:
-  activities: {}
-  hotels: {}
-  maps: {}
-  restaurants: {}
-  main_app: {}
+  default: {}
+  
 volumes:
   postgres:
     driver: local
