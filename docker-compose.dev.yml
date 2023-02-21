@@ -16,18 +16,6 @@ services:
       - ./db:/data
     networks:
       - default
-        
-  react:
-    build: 
-      context: ./frontend
-      target: development
-    working_dir: /code/react
-    networks:
-      - client-side 
-    ports:
-      - "${FRONTEND_PORT}:${FRONTEND_PORT}"
-    volumes:
-      - ./frontend/src:/code/src
   
   # main symfony app
   main_app:
@@ -126,7 +114,6 @@ networks:
   maps: {}
   restaurants: {}
   main_app: {}
-  client-side: {}
 volumes:
   postgres:
     driver: local
