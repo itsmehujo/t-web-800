@@ -23,7 +23,10 @@ start() {
 }
 
 startBack() {
-	docker-compose up symfony postgres -d
+	docker-compose up activities hotels maps restaurants postgres -d
+}
+startPostgres() {
+	docker-compose up postgres -d
 }
 
 startFront() {
@@ -44,7 +47,7 @@ wipe() {
 
 # builds containers
 build-back() {
-	docker-compose up --force-recreate --build --no-deps symfony postgres
+	docker-compose up --force-recreate --build --no-deps activities hotels maps restaurants postgres
 }
 
 build-front() {
@@ -52,18 +55,23 @@ build-front() {
 }
 
 build-all() {
-	docker-compose up --force-recreate --build --no-deps symfony postgres react
+	docker-compose up --force-recreate --build --no-deps activities hotels maps restaurants postgres react
 }
 
 
 #################################################
 ## COMMAND INTERPOLATION HELPERS
 
-# runs bash on the symfony container
+# runs bash on the @param container
 # @param {Boolean} interactive?
-# @param to be appended after the bash command
 runBash() {
-	$(execBackApp $1) bash $2
+	case $1 in
+	activities) $(execActivitiesApp $1) bash $2;;
+	hotels) $(execHotelsApp $1) bash $2;;
+	maps) $(execMapsApp $1) bash $2;;
+	restaurants) $(execRestaurantsApp $1) bash $2;;
+	*) echo "unknown container";;
+	esac
 }
 # runs psql on the postgres container
 # @param {Boolean} interactive?
@@ -71,9 +79,21 @@ runPsql() {
 	$(execPostgres $1) \
 		bash -c 'psql -U ${POSTGRES_USER} ${POSTGRES_DB}'
 }
-execBackApp() {
+execActivitiesApp() {
 	if [[ $1 ]]; then tty="-it"; else tty=""; fi
-	echo "docker exec ${tty} ${prjName}${containerNameSeparator}symfony${containerNameSeparator}1"
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}activities${containerNameSeparator}1"
+}
+execHotelsApp() {
+	if [[ $1 ]]; then tty="-it"; else tty=""; fi
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}hotels${containerNameSeparator}1"
+}
+execMapsApp() {
+	if [[ $1 ]]; then tty="-it"; else tty=""; fi
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}maps${containerNameSeparator}1"
+}
+execRestaurantsApp() {
+	if [[ $1 ]]; then tty="-it"; else tty=""; fi
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}restaurants${containerNameSeparator}1"
 }
 execFrontApp() {
 	if [[ $1 ]]; then tty="-it"; else tty=""; fi
@@ -102,9 +122,45 @@ psql() {
 # runs arbitrary manage commands
 # @param {Boolean} interactive?
 # @param the command
-startSymfony() {
-	$(execBackApp $1) \
-		symfony server:start
+startActivities() {
+	$(execActivitiesApp $1) \
+		symfony server:start --port=$ACTIVITIES_BACKEND_PORT -d
+}
+startHotels() {
+	$(execHotelsApp $1) \
+		symfony server:start --port=$HOTELS_BACKEND_PORT -d
+}
+startMaps() {
+	$(execMapsApp $1) \
+		symfony server:start --port=$MAPS_BACKEND_PORT -d
+}
+startRestaurants() {
+	$(execRestaurantsApp $1) \
+		symfony server:start --port=$RESTAURANTS_BACKEND_PORT -d
+}
+
+debugActivities() {
+	$(execActivitiesApp $1) \
+		symfony server:log
+}
+
+debugHotels() {
+	$(execHotelsApp $1) \
+		symfony server:log	
+}
+
+debugMaps() {
+	$(execMapsApp $1) \
+		symfony server:log	
+}
+
+debugRestaurants() {
+	$(execRestaurantsApp $1) \
+		symfony server:log	
+}
+
+startServices() {
+	startActivities && startHotels && startMaps && startRestaurants
 }
 
 startReact() {
@@ -112,10 +168,29 @@ startReact() {
 		npm start
 }
 
-dependencies() {
-	$(execBackApp 0) \
+activitiesDependencies() {
+	$(execActivitiesApp 0) \
 		bash -c \
 		"composer install"
+}
+hotelsDependencies() {
+	$(execHotelsApp 0) \
+		bash -c \
+		"composer install"
+}
+mapsDependencies() {
+	$(execMapApp 0) \
+		bash -c \
+		"composer install"
+}
+restaurantsDependencies() {
+	$(execRestaurantsApp 0) \
+		bash -c \
+		"composer install"
+}
+
+dependencies() {
+	activitiesDependencies && hotelsDependencies && mapsDependencies && restaurantsDependencies
 }
 
 ### TESTS && DOCS
@@ -128,24 +203,16 @@ dependencies() {
 
 ### SERVERS
 # main webserver
-webserver() {
-	port=${2:-"$BACKEND_PORT"}
-	manage "$1" \
-		"runserver 0.0.0.0:$port"
-}
 
 reactserver() {
 	startReact 
 }
 
 ### SHORTCUTS
-# runs all servers
-backServers() {
-	webserver $1
-}
+
 # runs docker and the servers
 back() {
-	startBack && startSymfony
+	startBack && startServices
 }
 
 front() {
@@ -208,16 +275,6 @@ anonymize() {
 		'pynonymizer -t postgres -i /data/dump.sql -o /data/anonymized_dump.sql -u ${POSTGRES_USER} -p ${POSTGRESQL_PASSWORD} -s /data/anonymization_strategy.yml -n anonymized_${POSTGRES_DB}'
 }
 
-
-format() {
-	$(execBackApp 0) \
-		python3 -m black .
-}
-
-format-check() {
-	$(execBackApp 0) \
-		python3 -m black --check .
-}
 
 
 

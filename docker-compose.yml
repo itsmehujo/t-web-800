@@ -3,7 +3,7 @@ name: "tweb800"
 services: 
   postgres:
     build: 
-      context: ./backend/db
+      context: ./backend/misc/db
       target: development
     environment:
       - POSTGRES_USER=postgres
@@ -16,23 +16,7 @@ services:
       - ./db:/data
     networks:
       - default
-
-  symfony:
-    build: 
-      context: ./backend
-      target: development
-    tty: true
-    ports:
-      - "${BACKEND_PORT}:${BACKEND_PORT}" #symfony
-      - "5678:5678" #remote debugger
-    links : 
-      - postgres
-    volumes:
-      - ./backend:/code
-    working_dir: /code/symfony
-    networks:
-      - default
-    
+        
   react:
     build: 
       context: ./frontend
@@ -45,9 +29,83 @@ services:
     volumes:
       - ./frontend/src:/code/src
 
+  # MICROSERVICES
+  activities:
+    build: 
+      context: ./backend
+      target: development
+      args:
+        - APP_NAME=activities
+    tty: true
+    ports:
+      - "${ACTIVITIES_BACKEND_PORT}:${ACTIVITIES_BACKEND_PORT}" #activities
+    links : 
+      - postgres
+    volumes:
+      - ./backend:/code
+    working_dir: /code/activities
+    networks:
+      - activities
+
+  hotels:
+    build: 
+      context: ./backend
+      target: development
+      args:
+        - APP_NAME=hotels
+    tty: true
+    ports:
+      - "${HOTELS_BACKEND_PORT}:${HOTELS_BACKEND_PORT}" #hotels
+    links : 
+      - postgres
+    volumes:
+      - ./backend:/code
+    working_dir: /code/hotels
+    networks:
+      - hotels
+
+  maps:
+    build: 
+      context: ./backend/maps
+      target: development
+      args:
+        - APP_NAME=maps
+    tty: true
+    ports:
+      - "${MAPS_BACKEND_PORT}:${MAPS_BACKEND_PORT}" #maps
+    links : 
+      - postgres
+    volumes:
+      - ./backend:/code
+    working_dir: /code/maps
+    networks:
+      - maps
+
+  restaurants:
+    build: 
+      context: ./backend/restaurants
+      target: development
+      args:
+        - APP_NAME=restaurants
+    tty: true
+    ports:
+      - "${RESTAURANTS_BACKEND_PORT}:${RESTAURANTS_BACKEND_PORT}" #restaurants
+    links : 
+      - postgres
+    volumes:
+      - ./backend:/code
+    working_dir: /code/restaurants
+    networks:
+      - restaurants
+
+
+
 
 networks:
-  default: {}
+  activities: {}
+  hotels: {}
+  maps: {}
+  restaurants: {}
   client-side: {}
 volumes:
   postgres:

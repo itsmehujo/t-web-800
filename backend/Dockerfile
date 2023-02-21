@@ -18,9 +18,11 @@ RUN pecl install xdebug-3.1.3 \
   && echo "xdebug.mode=debug" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini \
   && echo "xdebug.client_host=host.docker.internal" >> /usr/local/etc/php/conf.d/docker-php-ext-xdebug.ini
 
-COPY ./symfony/composer.json /code/symfony/composer.json
-COPY ./symfony/composer.lock /code/symfony/composer.lock
+ARG APP_NAME
 
-WORKDIR /code/symfony
+COPY ./$APP_NAME/composer.json /code/$APP_NAME/composer.json
+COPY ./$APP_NAME/composer.lock /code/$APP_NAME/composer.lock
+
+WORKDIR /code/$APP_NAME
 RUN composer install --prefer-dist --no-interaction --optimize-autoloader --no-scripts
 
