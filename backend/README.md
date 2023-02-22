@@ -42,10 +42,10 @@ If dependencies were added or changed, you need to update them with `./run refre
 ## Connect to local database
 
 The docker container for postgres must be running for you to connect to the database.
-The credentials and connection infos are:
+The credentials and connection infos are, if not changed by your local env variable:
 
-- **User**: `postgres`
-- **Password**: `postgresql__password`
+- **User**: `tweb800`
+- **Password**: `@!ChangeMe!`
 - **Host**: `localhost`
 - **Port**: `5436`
 - **Database**: `symfonyweb800`

@@ -36,9 +36,11 @@ stop() {
 
 # destroys all containers
 wipe() {
-	docker compose down --remove-orphans
-	docker compose rm -v
-	docker volume rm ${prjName}_postgres
+	docker-compose down --rmi all --volumes
+}
+
+freshStart() {
+	docker-compose down --rmi all --volumes && build
 }
 
 # builds containers
@@ -52,10 +54,11 @@ build() {
 ## COMMAND INTERPOLATION HELPERS
 
 # runs bash on the @param container
-# @param {Boolean} interactive?
+# @param {param} the app to run bash into
+# @param {param} the command
 runBash() {
 	case $1 in
-	main_app) $(execMainApp $1) bash;;
+	main_app) $(execMainApp $1) bash $2;;
 	activities) $(execActivitiesApp $1) bash;;
 	hotels) $(execHotelsApp $1) bash;;
 	maps) $(execMapsApp $1) bash;;
@@ -101,7 +104,7 @@ execPostgres() {
 ## COMMANDS
 # bash
 bash() {
-	runBash $1
+	runBash $1 $2
 }
 # psql
 psql() {
@@ -134,7 +137,7 @@ startRestaurants() {
 }
 
 debugApp() {
-	$(execActivitiesApp $1) \
+	$(execMainApp $1) \
 		symfony server:log
 }
 

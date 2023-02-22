@@ -4,9 +4,9 @@ services:
   postgres:
     image: postgres:alpine3.17
     environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_DB=symfonyweb800
-      - POSTGRES_PASSWORD=postgresql__password
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_DB=${POSTGRES_DB}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
     ports:
       - "5432:5432"
     volumes:
@@ -24,8 +24,9 @@ services:
         - APP_NAME=main_app
     tty: true
     ports:
-      - "${MAIN_BACKEND_PORT}:${MAIN_BACKEND_PORT}"
+      - "${MAIN_BACKEND_PORT}:${MAIN_BACKEND_PORT}" #activities
     environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?serverVersion=${POSTGRES_VERSION}
       FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
@@ -85,6 +86,7 @@ services:
     ports:
       - "${ACTIVITIES_BACKEND_PORT}:${ACTIVITIES_BACKEND_PORT}" #activities
     environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?serverVersion=${POSTGRES_VERSION}
       FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
@@ -103,6 +105,7 @@ services:
     ports:
       - "${HOTELS_BACKEND_PORT}:${HOTELS_BACKEND_PORT}" #hotels
     environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?serverVersion=${POSTGRES_VERSION}
       FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
@@ -121,6 +124,7 @@ services:
     ports:
       - "${MAPS_BACKEND_PORT}:${MAPS_BACKEND_PORT}" #maps
     environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?serverVersion=${POSTGRES_VERSION}
       FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
@@ -139,6 +143,7 @@ services:
     ports:
       - "${RESTAURANTS_BACKEND_PORT}:${RESTAURANTS_BACKEND_PORT}" #restaurants
     environment:
+      DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@database:5432/${POSTGRES_DB}?serverVersion=${POSTGRES_VERSION}
       FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
