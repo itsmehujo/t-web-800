@@ -21,7 +21,7 @@
     reverse_proxy activities:{$ACTIVITIES_BACKEND_PORT}
 }
 
-{$HOTELS_API_URL}} {
+{$HOTELS_API_URL} {
     encode zstd gzip
     file_server browse
 
