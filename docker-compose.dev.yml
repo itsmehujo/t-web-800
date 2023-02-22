@@ -24,7 +24,9 @@ services:
         - APP_NAME=main_app
     tty: true
     ports:
-      - "${MAIN_BACKEND_PORT}:${MAIN_BACKEND_PORT}" #activities
+      - "${MAIN_BACKEND_PORT}:${MAIN_BACKEND_PORT}"
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
     volumes:
@@ -63,6 +65,12 @@ services:
       HOTELS_BACKEND_PORT: ${HOTELS_BACKEND_PORT}
       MAPS_BACKEND_PORT: ${MAPS_BACKEND_PORT}
       RESTAURANTS_BACKEND_PORT: ${RESTAURANTS_BACKEND_PORT}
+      FRONTEND_URL: ${FRONTEND_URL}
+      MAIN_API_URL: ${MAIN_API_URL}
+      ACTIVITIES_API_URL: ${ACTIVITIES_API_URL}
+      HOTELS_API_URL: ${HOTELS_API_URL}
+      MAPS_API_URL: ${MAPS_API_URL}
+      RESTAURANTS_API_URL: ${RESTAURANTS_API_URL}
     restart: unless-stopped
 
 
@@ -76,6 +84,8 @@ services:
     tty: true
     ports:
       - "${ACTIVITIES_BACKEND_PORT}:${ACTIVITIES_BACKEND_PORT}" #activities
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
     volumes:
@@ -92,6 +102,8 @@ services:
     tty: true
     ports:
       - "${HOTELS_BACKEND_PORT}:${HOTELS_BACKEND_PORT}" #hotels
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
     volumes:
@@ -108,6 +120,8 @@ services:
     tty: true
     ports:
       - "${MAPS_BACKEND_PORT}:${MAPS_BACKEND_PORT}" #maps
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
     volumes:
@@ -124,6 +138,8 @@ services:
     tty: true
     ports:
       - "${RESTAURANTS_BACKEND_PORT}:${RESTAURANTS_BACKEND_PORT}" #restaurants
+    environment:
+      FRONTEND_URL: ${FRONTEND_URL}
     links : 
       - postgres
     volumes:

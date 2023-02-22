@@ -163,34 +163,48 @@ startServices() {
 }
 
 mainAppDependencies() {
-	$(execMainApp 0) \
-		bash -c \
-		"composer install"
+	$(execMainApp 0) composer install --no-scripts
 }
 
 activitiesDependencies() {
-	$(execActivitiesApp 0) \
-		bash -c \
-		"composer install"
+	$(execActivitiesApp 0) composer install --no-scripts
 }
 hotelsDependencies() {
-	$(execHotelsApp 0) \
-		bash -c \
-		"composer install"
+	$(execHotelsApp 0) composer install --no-scripts
 }
 mapsDependencies() {
-	$(execMapApp 0) \
-		bash -c \
-		"composer install"
+	$(execMapsApp 0) composer install --no-scripts
 }
 restaurantsDependencies() {
-	$(execRestaurantsApp 0) \
-		bash -c \
-		"composer install"
+	$(execRestaurantsApp 0) composer install --no-scripts
 }
 
 dependencies() {
 	mainAppDependencies && activitiesDependencies && hotelsDependencies && mapsDependencies && restaurantsDependencies
+}
+
+mainAppMigrations() {
+	$(execMainApp 0) symfony console make:migration
+}
+
+activitiesMigrations() {
+	$(execActivitiesApp 0) symfony console make:migration
+}
+
+hotelsMigrations() {
+	$(execHotelsApp 0) symfony console make:migration
+}
+
+mapsMigrations() {
+	$(execMapsApp 0) symfony console make:migration
+}
+
+restaurantsMigrations() {
+	$(execRestaurantsApp 0) symfony console make:migration
+}
+
+makemigrations() {
+	mainAppMigrations && activitiesMigrations && hotelsMigrations && mapsMigrations && restaurantsMigrations
 }
 
 ### TESTS && DOCS
