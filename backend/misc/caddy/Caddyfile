@@ -3,11 +3,15 @@
 }
 
 {$FRONTEND_URL} {
+    tls /root/certs/{$FRONTEND_URL}.pem /root/certs/{$FRONTEND_URL}-key.pem
+
     encode zstd gzip
     file_server browse
 }
 
 {$MAIN_API_URL} {
+    tls /root/certs/{$MAIN_API_URL}.pem /root/certs/{$MAIN_API_URL}-key.pem
+
     encode zstd gzip
     file_server browse
 
@@ -15,6 +19,8 @@
 }
 
 {$ACTIVITIES_API_URL} {
+    tls /root/certs/{$ACTIVITIES_API_URL}.pem /root/certs/{$ACTIVITIES_API_URL}-key.pem
+
     encode zstd gzip
     file_server browse
 
@@ -22,6 +28,8 @@
 }
 
 {$HOTELS_API_URL} {
+    tls /root/certs/{$HOTELS_API_URL}.pem /root/certs/{$HOTELS_API_URL}-key.pem
+
     encode zstd gzip
     file_server browse
 
@@ -29,6 +37,8 @@
 }
 
 {$MAPS_API_URL} {
+    tls /root/certs/{$MAPS_API_URL}.pem /root/certs/{$MAPS_API_URL}-key.pem
+
     encode zstd gzip
     file_server browse
 
@@ -36,6 +46,8 @@
 }
 
 {$RESTAURANTS_API_URL} {
+    tls /root/certs/{$RESTAURANTS_API_URL}.pem /root/certs/{$RESTAURANTS_API_URL}-key.pem
+
     encode zstd gzip
     file_server browse
 

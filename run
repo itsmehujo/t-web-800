@@ -55,14 +55,26 @@ build() {
 
 # runs bash on the @param container
 # @param {param} the app to run bash into
-# @param {param} the command
 runBash() {
 	case $1 in
-	main_app) $(execMainApp $1) bash $2;;
+	main_app) $(execMainApp $1) bash;;
 	activities) $(execActivitiesApp $1) bash;;
 	hotels) $(execHotelsApp $1) bash;;
 	maps) $(execMapsApp $1) bash;;
 	restaurants) $(execRestaurantsApp $1) bash;;
+	*) echo "unknown container";;
+	esac
+}
+
+# runs symfony:log on the @param container
+# @param {param} the app to run debug into
+runDebug() {
+	case $1 in
+	main_app) debugApp;;
+	activities) debugActivities;;
+	hotels) debugHotels;;
+	maps) debugMaps;;
+	restaurants) debugRestaurants;;
 	*) echo "unknown container";;
 	esac
 }
@@ -104,11 +116,15 @@ execPostgres() {
 ## COMMANDS
 # bash
 bash() {
-	runBash $1 $2
+	runBash $1
 }
 # psql
 psql() {
 	runPsql 1
+}
+
+debug() {
+	runDebug $1
 }
 
 ### symfony
@@ -301,6 +317,47 @@ dumpdb() {
 		'rm /dump.sql'
 }
 
+# MISC FOR HTTPS
+
+frontendSSL() {
+	mkcert ${FRONTEND_URL}
+	mv ./${FRONTEND_URL}.pem ./certs
+	mv ./${FRONTEND_URL}-key.pem ./certs
+}
+
+mainAppSSL() {
+	mkcert ${MAIN_API_URL}
+	mv ./${MAIN_API_URL}.pem ./certs
+	mv ./${MAIN_API_URL}-key.pem ./certs
+}
+
+activitiesSSL() {
+	mkcert ${ACTIVITIES_API_URL}
+	mv ./${ACTIVITIES_API_URL}.pem ./certs
+	mv ./${ACTIVITIES_API_URL}-key.pem ./certs
+}
+
+hotelsSSL() {
+	mkcert ${HOTELS_API_URL}
+	mv ./${HOTELS_API_URL}.pem ./certs
+	mv ./${HOTELS_API_URL}-key.pem ./certs
+}
+
+mapsSSL() {
+	mkcert ${MAPS_API_URL}
+	mv ./${MAPS_API_URL}.pem ./certs
+	mv ./${MAPS_API_URL}-key.pem ./certs
+}
+
+restaurantsSSL() {
+	mkcert ${RESTAURANTS_API_URL}
+	mv ./${RESTAURANTS_API_URL}.pem ./certs
+	mv ./${RESTAURANTS_API_URL}-key.pem ./certs
+}
+
+generateCerts() {
+	frontendSSL && mainAppSSL && activitiesSSL && hotelsSSL && mapsSSL && restaurantsSSL
+}
 
 
 
