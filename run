@@ -36,9 +36,11 @@ stop() {
 
 # destroys all containers
 wipe() {
-	docker compose down --remove-orphans
-	docker compose rm -v
-	docker volume rm ${prjName}_postgres
+	docker-compose down --rmi all --volumes
+}
+
+freshStart() {
+	docker-compose down --rmi all --volumes && build
 }
 
 # builds containers
@@ -52,7 +54,7 @@ build() {
 ## COMMAND INTERPOLATION HELPERS
 
 # runs bash on the @param container
-# @param {Boolean} interactive?
+# @param {param} the app to run bash into
 runBash() {
 	case $1 in
 	main_app) $(execMainApp $1) bash;;
@@ -60,6 +62,19 @@ runBash() {
 	hotels) $(execHotelsApp $1) bash;;
 	maps) $(execMapsApp $1) bash;;
 	restaurants) $(execRestaurantsApp $1) bash;;
+	*) echo "unknown container";;
+	esac
+}
+
+# runs symfony:log on the @param container
+# @param {param} the app to run debug into
+runDebug() {
+	case $1 in
+	main_app) debugApp;;
+	activities) debugActivities;;
+	hotels) debugHotels;;
+	maps) debugMaps;;
+	restaurants) debugRestaurants;;
 	*) echo "unknown container";;
 	esac
 }
@@ -108,6 +123,10 @@ psql() {
 	runPsql 1
 }
 
+debug() {
+	runDebug $1
+}
+
 ### symfony
 # runs arbitrary manage commands
 # @param {Boolean} interactive?
@@ -134,7 +153,7 @@ startRestaurants() {
 }
 
 debugApp() {
-	$(execActivitiesApp $1) \
+	$(execMainApp $1) \
 		symfony server:log
 }
 
@@ -163,34 +182,69 @@ startServices() {
 }
 
 mainAppDependencies() {
-	$(execMainApp 0) \
-		bash -c \
-		"composer install"
+	$(execMainApp 0) composer install --no-scripts
 }
 
 activitiesDependencies() {
-	$(execActivitiesApp 0) \
-		bash -c \
-		"composer install"
+	$(execActivitiesApp 0) composer install --no-scripts
 }
 hotelsDependencies() {
-	$(execHotelsApp 0) \
-		bash -c \
-		"composer install"
+	$(execHotelsApp 0) composer install --no-scripts
 }
 mapsDependencies() {
-	$(execMapApp 0) \
-		bash -c \
-		"composer install"
+	$(execMapsApp 0) composer install --no-scripts
 }
 restaurantsDependencies() {
-	$(execRestaurantsApp 0) \
-		bash -c \
-		"composer install"
+	$(execRestaurantsApp 0) composer install --no-scripts
 }
 
 dependencies() {
 	mainAppDependencies && activitiesDependencies && hotelsDependencies && mapsDependencies && restaurantsDependencies
+}
+
+mainAppMigrations() {
+	echo "CONTEXT: main_app" && $(execMainApp 0) symfony console make:migration
+}
+
+activitiesMigrations() {
+	echo "CONTEXT: activities" && $(execActivitiesApp 0) symfony console make:migration
+}
+
+hotelsMigrations() {
+	echo "CONTEXT: hotels" && $(execHotelsApp 0) symfony console make:migration
+}
+
+mapsMigrations() {
+	echo "CONTEXT: migrations" && $(execMapsApp 0) symfony console make:migration
+}
+
+restaurantsMigrations() {
+	echo "CONTEXT: restaurants" && $(execRestaurantsApp 0) symfony console make:migration
+}
+
+makemigrations() {
+	mainAppMigrations && activitiesMigrations && hotelsMigrations && mapsMigrations && restaurantsMigrations
+}
+
+
+mainAppMigrate() {
+	echo "CONTEXT: main_app" && $(execMainApp 0) symfony console doctrine:migration:migrate
+}
+
+activitiesMigrate() {
+	echo "CONTEXT: activities" && $(execActivitiesApp 0) symfony console doctrine:migration:migrate
+}
+
+hotelsMigrate() {
+	echo "CONTEXT: hotels" && $(execHotelsApp 0) symfony console doctrine:migration:migrate
+}
+
+mapsMigrate() {
+	echo "CONTEXT: migrations" && $(execMapsApp 0) symfony console doctrine:migration:migrate
+}
+
+restaurantsMigrate() {
+	echo "CONTEXT: restaurants" && $(execRestaurantsApp 0) symfony console doctrine:migration:migrate
 }
 
 ### TESTS && DOCS
@@ -263,6 +317,47 @@ dumpdb() {
 		'rm /dump.sql'
 }
 
+# MISC FOR HTTPS
+
+frontendSSL() {
+	mkcert ${FRONTEND_URL}
+	mv ./${FRONTEND_URL}.pem ./certs
+	mv ./${FRONTEND_URL}-key.pem ./certs
+}
+
+mainAppSSL() {
+	mkcert ${MAIN_API_URL}
+	mv ./${MAIN_API_URL}.pem ./certs
+	mv ./${MAIN_API_URL}-key.pem ./certs
+}
+
+activitiesSSL() {
+	mkcert ${ACTIVITIES_API_URL}
+	mv ./${ACTIVITIES_API_URL}.pem ./certs
+	mv ./${ACTIVITIES_API_URL}-key.pem ./certs
+}
+
+hotelsSSL() {
+	mkcert ${HOTELS_API_URL}
+	mv ./${HOTELS_API_URL}.pem ./certs
+	mv ./${HOTELS_API_URL}-key.pem ./certs
+}
+
+mapsSSL() {
+	mkcert ${MAPS_API_URL}
+	mv ./${MAPS_API_URL}.pem ./certs
+	mv ./${MAPS_API_URL}-key.pem ./certs
+}
+
+restaurantsSSL() {
+	mkcert ${RESTAURANTS_API_URL}
+	mv ./${RESTAURANTS_API_URL}.pem ./certs
+	mv ./${RESTAURANTS_API_URL}-key.pem ./certs
+}
+
+generateCerts() {
+	frontendSSL && mainAppSSL && activitiesSSL && hotelsSSL && mapsSSL && restaurantsSSL
+}
 
 
 

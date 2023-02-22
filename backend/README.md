@@ -5,13 +5,6 @@
 You must have **Docker** installed.
 Run `cp ./.env.example ./.env`
 
-Make sure you have a database dump (ask a collegue !) in the `backend/db` folder, and rename it dump.sql
-
-You can then download, build and prepare Docker by running the following command: `./run build`  
-Make sure to close the terminal after running this command because it will be polluted with logs.
-
-Finally, load the DB dumb with : `./run prepare`
-
 ## Setup Caddy
 
 # Option 1
@@ -26,6 +19,15 @@ Edit the your local .env file and change all lines appended by 'URL' to either
 - custom urls you setup on your machine
 - localhost:port combination (other than 8000, 8001, 8002, 8003, 8004)
 
+## Add local certificates to support SSL
+
+run `./run generateCerts`
+
+## Build the containers
+
+You can then download, build and prepare Docker by running the following command: `./run build`  
+Make sure to close the terminal after running this command.
+
 ## Run
 
 To get things running, you can use `./run back` and `./run stop-back` to stop it.  
@@ -37,15 +39,15 @@ If you're having a major issue, you can start the whole process over with `./run
 
 ### Dependencies
 
-If dependencies were added or changed, you need to update them with `./run refresh`
+If dependencies were added or changed, you need to update them with `./run dependencies`
 
 ## Connect to local database
 
 The docker container for postgres must be running for you to connect to the database.
-The credentials and connection infos are:
+The credentials and connection infos are, if not changed by your local env variable:
 
-- **User**: `postgres`
-- **Password**: `postgresql__password`
+- **User**: `tweb800`
+- **Password**: `@!ChangeMe!`
 - **Host**: `localhost`
 - **Port**: `5436`
 - **Database**: `symfonyweb800`
@@ -53,17 +55,14 @@ The credentials and connection infos are:
 ## The runner script - ./run
 
 - `./run back`: starts the containers and all backend processes
-- `./run start`: starts all the containers
+- `./run debug app_name`: starts outputing logs from requested app
+- `./run makemigrations`: create migrations on all apps (interactive)
+- `./run migrate`: runs migrate from all apps (interactive)
 - `./run stop`: stops the containers
-- `./run bash`: runs bash terminal on the symfony container
+- `./run bash app_name`: runs bash terminal on the app container
 - `./run psql`: runs psql prompt on the postgres container
-- `./run startSymfony`: shortcut for symfony server:start (runned on the docker instance)
 - `./run shell`: shortcut for ./manage.py shell_plus.
-- `./run refresh`: installs dependencies
-- `./run loaddb`: loads database from the db/dump.sql file
-- `./run resetdb`: clears the database
-- `./run servers`: runs webserver
-- `./run prepare`: runs loaddb
+- `./run dependencies`: installs dependencies
 
 ## VSCode setup [to be done]
 
