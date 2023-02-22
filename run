@@ -187,27 +187,48 @@ dependencies() {
 }
 
 mainAppMigrations() {
-	$(execMainApp 0) symfony console make:migration
+	echo "CONTEXT: main_app" && $(execMainApp 0) symfony console make:migration
 }
 
 activitiesMigrations() {
-	$(execActivitiesApp 0) symfony console make:migration
+	echo "CONTEXT: activities" && $(execActivitiesApp 0) symfony console make:migration
 }
 
 hotelsMigrations() {
-	$(execHotelsApp 0) symfony console make:migration
+	echo "CONTEXT: hotels" && $(execHotelsApp 0) symfony console make:migration
 }
 
 mapsMigrations() {
-	$(execMapsApp 0) symfony console make:migration
+	echo "CONTEXT: migrations" && $(execMapsApp 0) symfony console make:migration
 }
 
 restaurantsMigrations() {
-	$(execRestaurantsApp 0) symfony console make:migration
+	echo "CONTEXT: restaurants" && $(execRestaurantsApp 0) symfony console make:migration
 }
 
 makemigrations() {
 	mainAppMigrations && activitiesMigrations && hotelsMigrations && mapsMigrations && restaurantsMigrations
+}
+
+
+mainAppMigrate() {
+	echo "CONTEXT: main_app" && $(execMainApp 0) symfony console doctrine:migration:migrate
+}
+
+activitiesMigrate() {
+	echo "CONTEXT: activities" && $(execActivitiesApp 0) symfony console doctrine:migration:migrate
+}
+
+hotelsMigrate() {
+	echo "CONTEXT: hotels" && $(execHotelsApp 0) symfony console doctrine:migration:migrate
+}
+
+mapsMigrate() {
+	echo "CONTEXT: migrations" && $(execMapsApp 0) symfony console doctrine:migration:migrate
+}
+
+restaurantsMigrate() {
+	echo "CONTEXT: restaurants" && $(execRestaurantsApp 0) symfony console doctrine:migration:migrate
 }
 
 ### TESTS && DOCS
