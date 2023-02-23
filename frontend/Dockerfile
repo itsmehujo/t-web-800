@@ -1,13 +1,10 @@
-FROM node:lts-alpine3.17 as development
-
-RUN mkdir -p /var/run
+FROM node:16-alpine as development
 
 WORKDIR /code/react
 
 COPY package.json /code/react/package.json
-COPY package-lock.json /code/react/package-lock.json
+COPY yarn.lock /code/react/yarn.lock
 
-RUN npm ci
-COPY . /code/react
+RUN yarn install
 
-CMD ["npm", "start"]
+

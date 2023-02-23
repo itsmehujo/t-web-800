@@ -1,6 +1,23 @@
 version: "3"
 name: "tweb800"
 services: 
+
+  react:
+    build:
+      context: ./frontend
+      target: development
+    tty: true
+    ports:
+      - ${FRONTEND_PORT}:${FRONTEND_PORT}
+    environment:
+      VITE_PORT: ${FRONTEND_PORT}
+      NODE_VERSION: 18
+    volumes:
+      - ./frontend:/code/react
+    working_dir: /code/react
+    networks:
+      - default
+
   postgres:
     image: postgres:alpine3.17
     environment:
@@ -31,7 +48,7 @@ services:
     links : 
       - postgres
     volumes:
-      - ./backend:/code
+      - ./backend/main_app:/code/main_app
     working_dir: /code/main_app
     
   # server
@@ -55,13 +72,8 @@ services:
       - target: 443
         published: 443
         protocol: udp
-    depends_on:
-      - main_app
-      - activities
-      - hotels
-      - maps
-      - restaurants
     environment:
+      FRONTEND_PORT: ${FRONTEND_PORT}
       MAIN_BACKEND_PORT: ${MAIN_BACKEND_PORT}
       ACTIVITIES_BACKEND_PORT: ${ACTIVITIES_BACKEND_PORT}
       HOTELS_BACKEND_PORT: ${HOTELS_BACKEND_PORT}
@@ -92,7 +104,7 @@ services:
     links : 
       - postgres
     volumes:
-      - ./backend:/code
+      - ./backend/activities:/code/activities
     working_dir: /code/activities
     
 
@@ -111,7 +123,7 @@ services:
     links : 
       - postgres
     volumes:
-      - ./backend:/code
+      - ./backend/hotels:/code/hotels
     working_dir: /code/hotels
     
 
@@ -130,7 +142,7 @@ services:
     links : 
       - postgres
     volumes:
-      - ./backend:/code
+      - ./backend/maps:/code/maps
     working_dir: /code/maps
     
 
@@ -149,7 +161,7 @@ services:
     links : 
       - postgres
     volumes:
-      - ./backend:/code
+      - ./backend/restaurants:/code/restaurants
     working_dir: /code/restaurants
     
 
