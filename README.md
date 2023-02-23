@@ -12,6 +12,15 @@ gotcha:
 ```
 Then head to [Epic Road Trip local's website](https://epicroadtrip.local/) !
 
+## Useful links:
+If you did not touch anything:
+- [Frontend Url](https://epicroadtrip.local/): `https://epicroadtrip.local/`
+- [Main api Url](https://api.epicroadtrip.local/): `https://api.epicroadtrip.local/`
+- [Activities api Url](https://activities.epicroadtrip.local/): `https://activities.epicroadtrip.local/`
+- [Maps api Url](https://maps.epicroadtrip.local/): `https://maps.epicroadtrip.local/`
+- [Hotels api Url](https://hotels.epicroadtrip.local/): `https://hotels.epicroadtrip.local/`
+- [Restaurants api Url](https://restaurants.epicroadtrip.local/): `https://restaurants.epicroadtrip.local/`
+
 ## The runner script - ./run
 
 ### Global
