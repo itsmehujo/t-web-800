@@ -2,3 +2,5 @@
 venv
 .env
 certs/*.pem
+.idea
+.vs-code
