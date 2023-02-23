@@ -25,6 +25,11 @@ start() {
 startBack() {
 	docker compose --file docker-compose.dev.yml up caddy main_app activities hotels maps restaurants postgres -d
 }
+
+startFront() {
+	docker compose --file docker-compose.dev.yml up caddy react -d
+}
+
 startPostgres() {
 	docker compose--file docker-compose.dev.yml up postgres -d
 }
@@ -34,18 +39,30 @@ stop() {
 	docker compose stop
 }
 
+stopBack() {
+	docker compose stop main_app activities hotels maps restaurants
+}
+
+stopFront() {
+	docker compose stop react
+}
+
+stopMisc() {
+	docker compose stop postgres caddy
+}
+
 # destroys all containers
 wipe() {
 	docker-compose down --rmi all --volumes
 }
 
 freshStart() {
-	docker-compose down --rmi all --volumes && build
+	wipe && build
 }
 
 # builds containers
 build() {
-	docker compose --file docker-compose.dev.yml up --force-recreate --build --no-deps caddy main_app activities hotels maps restaurants postgres
+	docker compose --file docker-compose.dev.yml up --force-recreate --build --no-deps caddy main_app activities hotels maps restaurants postgres react
 }
 
 
@@ -57,11 +74,12 @@ build() {
 # @param {param} the app to run bash into
 runBash() {
 	case $1 in
-	main_app) $(execMainApp $1) bash;;
-	activities) $(execActivitiesApp $1) bash;;
-	hotels) $(execHotelsApp $1) bash;;
-	maps) $(execMapsApp $1) bash;;
-	restaurants) $(execRestaurantsApp $1) bash;;
+	main_app) $(execMainApp 1) bash;;
+	activities) $(execActivitiesApp 1) bash;;
+	hotels) $(execHotelsApp 1) bash;;
+	maps) $(execMapsApp 1) bash;;
+	restaurants) $(execRestaurantsApp 1) bash;;
+	react) $(execReactApp 1) /bin/sh ;;
 	*) echo "unknown container";;
 	esac
 }
@@ -104,6 +122,10 @@ execRestaurantsApp() {
 	if [[ $1 ]]; then tty="-it"; else tty=""; fi
 	echo "docker exec ${tty} ${prjName}${containerNameSeparator}restaurants${containerNameSeparator}1"
 }
+execReactApp() {
+	if [[ $1 ]]; then tty="-it"; else tty=""; fi
+	echo "docker exec ${tty} ${prjName}${containerNameSeparator}react${containerNameSeparator}1"
+}
 # echoes a docker exec running on the postgres container
 # @param {Boolean} interactive or not
 execPostgres() {
@@ -132,54 +154,62 @@ debug() {
 # @param {Boolean} interactive?
 # @param the command
 startMainApp() {
-	$(execMainApp $1) \
+	$(execMainApp 1) \
 		symfony server:start --port=$MAIN_BACKEND_PORT -d
 }
 startActivities() {
-	$(execActivitiesApp $1) \
+	$(execActivitiesApp 1) \
 		symfony server:start --port=$ACTIVITIES_BACKEND_PORT -d
 }
 startHotels() {
-	$(execHotelsApp $1) \
+	$(execHotelsApp 1) \
 		symfony server:start --port=$HOTELS_BACKEND_PORT -d
 }
 startMaps() {
-	$(execMapsApp $1) \
+	$(execMapsApp 1) \
 		symfony server:start --port=$MAPS_BACKEND_PORT -d
 }
 startRestaurants() {
-	$(execRestaurantsApp $1) \
+	$(execRestaurantsApp 1) \
 		symfony server:start --port=$RESTAURANTS_BACKEND_PORT -d
 }
 
-debugApp() {
-	$(execMainApp $1) \
-		symfony server:log
-}
 
-debugActivities() {
-	$(execActivitiesApp $1) \
-		symfony server:log
-}
-
-debugHotels() {
-	$(execHotelsApp $1) \
-		symfony server:log	
-}
-
-debugMaps() {
-	$(execMapsApp $1) \
-		symfony server:log	
-}
-
-debugRestaurants() {
-	$(execRestaurantsApp $1) \
-		symfony server:log	
+startReact() {
+	$(execReactApp 1) \
+		yarn dev
 }
 
 startServices() {
 	startMainApp && startActivities && startHotels && startMaps && startRestaurants
 }
+
+debugApp() {
+	$(execMainApp 1) \
+		symfony server:log
+}
+
+debugActivities() {
+	$(execActivitiesApp 1) \
+		symfony server:log
+}
+
+debugHotels() {
+	$(execHotelsApp 1) \
+		symfony server:log	
+}
+
+debugMaps() {
+	$(execMapsApp 1) \
+		symfony server:log	
+}
+
+debugRestaurants() {
+	$(execRestaurantsApp 1) \
+		symfony server:log	
+}
+
+
 
 mainAppDependencies() {
 	$(execMainApp 0) composer install --no-scripts
@@ -197,9 +227,16 @@ mapsDependencies() {
 restaurantsDependencies() {
 	$(execRestaurantsApp 0) composer install --no-scripts
 }
+reactDependencies() {
+	$(execReactApp 0) yarn install
+}
 
-dependencies() {
+backDependencies() {
 	mainAppDependencies && activitiesDependencies && hotelsDependencies && mapsDependencies && restaurantsDependencies
+}
+
+depdencies() {
+	backDependencies && reactDependencies
 }
 
 mainAppMigrations() {
@@ -263,6 +300,14 @@ back() {
 	startBack && startServices
 }
 
+front() {
+	startFront && startReact
+}
+
+run() {
+	back && front
+}
+
 setupLocalUrl() {
 	cat << URL >> /etc/hosts
 # EPIC ROAD TRIP URLS
@@ -275,47 +320,47 @@ refresh() {
 	dependencies
 }
 
-prepare() {
-	refresh
-	loaddb
-}
+# prepare() {
+# 	refresh
+# 	loaddb
+# }
 
-### DATABASE
-resetdb() {
-	$(execPostgres 0) \
-		bash -c \
-		'dropdb -U ${POSTGRES_USER} ${POSTGRES_DB} &&createdb -U ${POSTGRES_USER} ${POSTGRES_DB}'
-}
+# ### DATABASE
+# resetdb() {
+# 	$(execPostgres 0) \
+# 		bash -c \
+# 		'dropdb -U ${POSTGRES_USER} ${POSTGRES_DB} &&createdb -U ${POSTGRES_USER} ${POSTGRES_DB}'
+# }
 
-loaddb() {
-	docker cp db/dump.sql ${postgresName}:/
-	$(execPostgres 0) \
-		bash -c \
-		"psql -U ${POSTGRES_USER} ${POSTGRES_DB} < /dump.sql"
-	$(execPostgres 0) \
-		bash -c \
-		'rm /dump.sql'
-}
+# loaddb() {
+# 	docker cp db/dump.sql ${postgresName}:/
+# 	$(execPostgres 0) \
+# 		bash -c \
+# 		"psql -U ${POSTGRES_USER} ${POSTGRES_DB} < /dump.sql"
+# 	$(execPostgres 0) \
+# 		bash -c \
+# 		'rm /dump.sql'
+# }
 
-loaddump() {
-	docker cp db/dump.pgdump ${postgresName}:/
-	$(execPostgres 0) \
-		bash -c \
-		"pg_restore --no-privileges --no-owner -U ${POSTGRES_USER} -d ${POSTGRES_DB} /dump.pgdump"
-	$(execPostgres 0) \
-		bash -c \
-		'rm /dump.pgdump'
-}
+# loaddump() {
+# 	docker cp db/dump.pgdump ${postgresName}:/
+# 	$(execPostgres 0) \
+# 		bash -c \
+# 		"pg_restore --no-privileges --no-owner -U ${POSTGRES_USER} -d ${POSTGRES_DB} /dump.pgdump"
+# 	$(execPostgres 0) \
+# 		bash -c \
+# 		'rm /dump.pgdump'
+# }
 
-dumpdb() {
-	$(execPostgres 0) \
-		bash -c \
-		"pg_dump -U ${POSTGRES_USER} ${POSTGRES_DB} > /dump.sql"
-	docker cp ${postgresName}:/dump.sql ./db/
-	$(execPostgres 0) \
-		bash -c \
-		'rm /dump.sql'
-}
+# dumpdb() {
+# 	$(execPostgres 0) \
+# 		bash -c \
+# 		"pg_dump -U ${POSTGRES_USER} ${POSTGRES_DB} > /dump.sql"
+# 	docker cp ${postgresName}:/dump.sql ./db/
+# 	$(execPostgres 0) \
+# 		bash -c \
+# 		'rm /dump.sql'
+# }
 
 # MISC FOR HTTPS
 
