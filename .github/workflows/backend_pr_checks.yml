@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   main_app:
-    name: Unit test (${{ github.job }})
+    name: Unit test (main_app)
     runs-on: ubuntu-latest
 
     services:
@@ -84,7 +84,7 @@ jobs:
           
 
   activities:
-    name: Unit test (${{ github.job }})
+    name: Unit test (activities)
     runs-on: ubuntu-latest
 
     services:
@@ -156,8 +156,9 @@ jobs:
           cd ./backend/${{ github.job }}
           simple-phpunit --coverage-text ./src
 
+
   hotels:
-    name: Unit test (${{ github.job }})
+    name: Unit test (hotels)
     runs-on: ubuntu-latest
 
     services:
@@ -231,7 +232,7 @@ jobs:
           
 
   maps:
-    name: Unit test (${{ github.job }})
+    name: Unit test (maps)
     runs-on: ubuntu-latest
 
     services:
@@ -304,7 +305,7 @@ jobs:
           simple-phpunit --coverage-text ./src
 
   restaurants:
-    name: Unit test (${{ github.job }})
+    name: Unit test (restaurants)
     runs-on: ubuntu-latest
 
     services:
