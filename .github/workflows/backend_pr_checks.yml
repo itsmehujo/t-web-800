@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   main_app:
-    name: Symfony (PHP ${{ matrix.php-version }}
+    name: Main App 
     runs-on: ubuntu-latest
 
     services:
@@ -26,8 +26,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        php-version: '8.1'
-        app-name: 'main_app'
+        php-version: ['8.1']
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -46,24 +45,24 @@ jobs:
       - name: Get composer cache directory
         id: composer-cache
         run: |
-          cd ./backend/${{ matrix.app-name }}
+          cd ./backend/${{ github.job }}
           echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
 
       - name: Cache composer dependencies
         uses: actions/cache@v3
         with:
           path: ${{ steps.composer-cache.outputs.dir }}
-          key: ${{ matrix.app-name }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
-          restore-keys: ${{ matrix.app-name }}-${{ runner.os }}-composer-
+          key: ${{ github.job }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ github.job }}-${{ runner.os }}-composer-
 #
       - name: Install Composer dependencies
         run: |
-          cd ./backend/${{ matrix.app-name }}
+          cd ./backend/${{ github.job }}
           composer install --no-progress --prefer-dist --optimize-autoloader
 
       - name: Run Migration
         run: |
-          cd ./backend/${{ matrix.app-name }}
+          cd ./backend/${{ github.job }}
           composer require --dev symfony/orm-pack
           php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
           php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
@@ -72,12 +71,12 @@ jobs:
 
       - name: Install PHPUnit
         run: |
-          cd ./backend/${{ matrix.app-name }}
+          cd ./backend/${{ github.job }}
           simple-phpunit install
 
       - name: Run tests
         run: |
-          cd ./backend/${{ matrix.app-name }}
+          cd ./backend/${{ github.job }}
           simple-phpunit --coverage-text
 
 
