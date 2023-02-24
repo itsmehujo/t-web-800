@@ -63,7 +63,7 @@ jobs:
       - name: Run Migration
         run: |
           cd ./backend/${{ github.job }}
-          composer require --dev symfony/orm-pack
+          composer require --dev symfony/orm-pack --no-scripts
           php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
           php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
         env:
