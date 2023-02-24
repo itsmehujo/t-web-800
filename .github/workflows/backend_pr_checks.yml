@@ -1,9 +1,11 @@
 name: Backend checks
 on:
   push:
-    branches: [ "main" ]
+    branches:
+      - main
   pull_request:
-    branches: [ "backend/**" ]
+    branches:
+      - 'backend/**'
 
 permissions:
   contents: read
