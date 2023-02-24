@@ -58,8 +58,7 @@ jobs:
       - name: Install Composer dependencies
         run: |
           cd ./backend/${{ github.job }}
-          cp .env.test .env
-          composer install --no-progress --prefer-dist --optimize-autoloader
+          composer install --no-progress --prefer-dist --optimize-autoloader --no-scripts    
 
       - name: Run Migration
         run: |
