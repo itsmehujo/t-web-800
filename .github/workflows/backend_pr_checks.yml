@@ -10,7 +10,7 @@ permissions:
 
 jobs:
   main_app:
-    name: Main App 
+    name: "Unit test: main_app"
     runs-on: ubuntu-latest
 
     services:
@@ -23,10 +23,12 @@ jobs:
         ports:
           - 5432/tcp
         options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
     strategy:
       fail-fast: false
       matrix:
         php-version: ['8.1']
+
     steps:
       - name: Checkout
         uses: actions/checkout@v3
@@ -65,7 +67,7 @@ jobs:
           cd ./backend/${{ github.job }}
           cp .env.test .env
           composer require --dev symfony/orm-pack
-          php bin/console doctrine:database:create
+#          php bin/console doctrine:database:create
           php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
           php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
         env:
