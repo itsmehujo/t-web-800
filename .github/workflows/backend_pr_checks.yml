@@ -10,7 +10,81 @@ permissions:
 
 jobs:
   main_app:
-    name: Unit test (main_app)
+    name: Unit test (${{ github.job }})
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15.2-alpine3.17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432/tcp
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.1']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: phpunit-bridge
+          extensions: mbstring, xml, ctype, iconv, intl, pgsql
+          coverage: xdebug
+
+      - name: Start postgresql service
+        run: sudo systemctl start postgresql.service
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: |
+          cd ./backend/${{ github.job }}
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ github.job }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ github.job }}-${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: |
+          cd ./backend/${{ github.job }}
+          composer install --no-progress --prefer-dist --optimize-autoloader --no-scripts    
+
+      - name: Run Migration
+        run: |
+          cd ./backend/${{ github.job }}
+          cp .env.test .env
+          composer require --dev symfony/orm-pack
+          php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
+          php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
+
+      - name: Install PHPUnit
+        run: |
+          cd ./backend/${{ github.job }}
+          simple-phpunit install
+
+      - name: Run tests
+        run: |
+          cd ./backend/${{ github.job }}
+          simple-phpunit --coverage-text ./src
+          
+
+  activities:
+    name: Unit test (${{ github.job }})
     runs-on: ubuntu-latest
 
     services:
@@ -82,31 +156,222 @@ jobs:
           cd ./backend/${{ github.job }}
           simple-phpunit --coverage-text ./src
 
+  hotels:
+    name: Unit test (${{ github.job }})
+    runs-on: ubuntu-latest
 
-#  symfony-tests:
-#    runs-on: ubuntu-latest
-#    steps:
-#      - uses: shivammathur/setup-php@v2
-#        with:
-#          php-version: '8.1'
-#      - uses: actions/checkout@v3
-#      - name: Copy .env.test.local
-#        run: php -r "file_exists('.env.test.local') || copy('.env.test', '.env.test.local');"
-#      - name: Cache Composer packages
-#        id: composer-cache
-#        uses: actions/cache@v3
-#        with:
-#          path: vendor
-#          key: ${{ runner.os }}-php-${{ hashFiles('**/composer.lock') }}
-#          restore-keys: |
-#            ${{ runner.os }}-php-
-#      - name: Install Dependencies
-#        run: composer install -q --no-ansi --no-interaction --no-scripts --no-progress --prefer-dist
-#      - name: Create Database
-#        run: |
-#          mkdir -p data
-#          touch data/database.sqlite
-#      - name: Execute tests (Unit and Feature tests) via PHPUnit
-#        env:
-#          DATABASE_URL: sqlite:///%kernel.project_dir%/data/database.sqlite
-#        run: vendor/bin/phpunit
+    services:
+      postgres:
+        image: postgres:15.2-alpine3.17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432/tcp
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: ['8.1']
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: phpunit-bridge
+          extensions: mbstring, xml, ctype, iconv, intl, pgsql
+          coverage: xdebug
+
+      - name: Start postgresql service
+        run: sudo systemctl start postgresql.service
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: |
+          cd ./backend/${{ github.job }}
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ github.job }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ github.job }}-${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: |
+          cd ./backend/${{ github.job }}
+          composer install --no-progress --prefer-dist --optimize-autoloader --no-scripts    
+
+      - name: Run Migration
+        run: |
+          cd ./backend/${{ github.job }}
+          cp .env.test .env
+          composer require --dev symfony/orm-pack
+          php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
+          php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
+
+      - name: Install PHPUnit
+        run: |
+          cd ./backend/${{ github.job }}
+          simple-phpunit install
+
+      - name: Run tests
+        run: |
+          cd ./backend/${{ github.job }}
+          simple-phpunit --coverage-text ./src
+          
+
+  maps:
+    name: Unit test (${{ github.job }})
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15.2-alpine3.17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432/tcp
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: [ '8.1' ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: phpunit-bridge
+          extensions: mbstring, xml, ctype, iconv, intl, pgsql
+          coverage: xdebug
+
+      - name: Start postgresql service
+        run: sudo systemctl start postgresql.service
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: |
+          cd ./backend/${{ github.job }}
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ github.job }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ github.job }}-${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: |
+          cd ./backend/${{ github.job }}
+          composer install --no-progress --prefer-dist --optimize-autoloader --no-scripts    
+
+      - name: Run Migration
+        run: |
+          cd ./backend/${{ github.job }}
+          cp .env.test .env
+          composer require --dev symfony/orm-pack
+          php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
+          php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
+
+      - name: Install PHPUnit
+        run: |
+          cd ./backend/${{ github.job }}
+          simple-phpunit install
+
+      - name: Run tests
+        run: |
+          cd ./backend/${{ github.job }}
+          simple-phpunit --coverage-text ./src
+
+  restaurants:
+    name: Unit test (${{ github.job }})
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15.2-alpine3.17
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: postgres
+        ports:
+          - 5432/tcp
+        options: --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 3
+
+    strategy:
+      fail-fast: false
+      matrix:
+        php-version: [ '8.1' ]
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Setup PHP ${{ matrix.php-version }}
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: ${{ matrix.php-version }}
+          tools: phpunit-bridge
+          extensions: mbstring, xml, ctype, iconv, intl, pgsql
+          coverage: xdebug
+
+      - name: Start postgresql service
+        run: sudo systemctl start postgresql.service
+
+      - name: Get composer cache directory
+        id: composer-cache
+        run: |
+          cd ./backend/${{ github.job }}
+          echo "dir=$(composer config cache-files-dir)" >> $GITHUB_OUTPUT
+
+      - name: Cache composer dependencies
+        uses: actions/cache@v3
+        with:
+          path: ${{ steps.composer-cache.outputs.dir }}
+          key: ${{ github.job }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
+          restore-keys: ${{ github.job }}-${{ runner.os }}-composer-
+
+      - name: Install Composer dependencies
+        run: |
+          cd ./backend/${{ github.job }}
+          composer install --no-progress --prefer-dist --optimize-autoloader --no-scripts    
+
+      - name: Run Migration
+        run: |
+          cd ./backend/${{ github.job }}
+          cp .env.test .env
+          composer require --dev symfony/orm-pack
+          php bin/console doctrine:schema:update --force || echo "No migrations found or schema update failed"
+          php bin/console doctrine:migrations:migrate || echo "No migrations found or migration failed"
+        env:
+          DATABASE_URL: postgres://postgres:postgres@127.0.0.1:${{ job.services.postgres.ports[5432] }}/postgres?charset=UTF-8
+
+      - name: Install PHPUnit
+        run: |
+          cd ./backend/${{ github.job }}
+          simple-phpunit install
+
+      - name: Run tests
+        run: |
+          cd ./backend/${{ github.job }}
+          simple-phpunit --coverage-text ./src
