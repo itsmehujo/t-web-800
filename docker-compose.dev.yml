@@ -19,7 +19,7 @@ services:
       - default
 
   postgres:
-    image: postgres:alpine3.17
+    image: postgres:15.2-alpine3.17
     environment:
       - POSTGRES_USER=${POSTGRES_USER}
       - POSTGRES_DB=${POSTGRES_DB}
