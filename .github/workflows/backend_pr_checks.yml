@@ -56,7 +56,7 @@ jobs:
           path: ${{ steps.composer-cache.outputs.dir }}
           key: ${{ github.job }}-${{ runner.os }}-composer-${{ hashFiles('**/composer.lock') }}
           restore-keys: ${{ github.job }}-${{ runner.os }}-composer-
-#
+
       - name: Install Composer dependencies
         run: |
           cd ./backend/${{ github.job }}
